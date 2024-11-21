@@ -1,44 +1,121 @@
-import { createContext, useContext, useState } from 'react';
-
-interface User {
-  id: string;
-  email: string;
-}
+import { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import type { User } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
-  signOut: () => void;
-  signIn: (email: string) => void;
+  signOut: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string) => Promise<{ error: string | null }>;
+  isLoading: boolean;
+  error: string | null;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  signOut: () => {},
-  signIn: () => {}
+  signOut: async () => {},
+  signIn: async () => ({ error: null }),
+  signUp: async () => ({ error: null }),
+  isLoading: true,
+  error: null
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem('demo_user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const signIn = (email: string) => {
-    const newUser = {
-      id: Math.random().toString(36).substr(2, 9),
-      email
-    };
-    setUser(newUser);
-    localStorage.setItem('demo_user', JSON.stringify(newUser));
+  useEffect(() => {
+    // Check active sessions and sets the user
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
+
+    // Listen for changes on auth state (signed in, signed out, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const signUp = async (email: string, password: string) => {
+    try {
+      setError(null);
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: {
+            name: email.split('@')[0]
+          }
+        }
+      });
+
+      if (error) {
+        console.error('Signup error:', error);
+        return { error: error.message };
+      }
+
+      if (data?.user) {
+        console.log('User created:', data.user.id);
+        // Auto sign in after signup for better UX
+        return signIn(email, password);
+      }
+
+      return { error: null };
+    } catch (error) {
+      console.error('Signup error:', error);
+      const message = error instanceof Error ? error.message : 'Failed to sign up';
+      setError(message);
+      return { error: message };
+    }
   };
 
-  const signOut = () => {
-    setUser(null);
-    localStorage.removeItem('demo_user');
+  const signIn = async (email: string, password: string) => {
+    try {
+      setError(null);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        console.error('Signin error:', error);
+        return { error: 'Invalid email or password' };
+      }
+
+      if (data?.user) {
+        setUser(data.user);
+      }
+
+      return { error: null };
+    } catch (error) {
+      console.error('Signin error:', error);
+      const message = error instanceof Error ? error.message : 'Failed to sign in';
+      setError(message);
+      return { error: message };
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      setError(null);
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setUser(null);
+    } catch (error) {
+      console.error('Signout error:', error);
+      const message = error instanceof Error ? error.message : 'Failed to sign out';
+      setError(message);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, signOut, signIn, signUp, isLoading, error }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,8 +1,9 @@
 -- Enable required extensions
 create extension if not exists "uuid-ossp";
+create extension if not exists "pgcrypto";
 
 -- Create testimonials table
-create table public.testimonials (
+create table if not exists public.testimonials (
     id text primary key,
     created_at timestamp with time zone default timezone('utc'::text, now()) not null,
     updated_at timestamp with time zone default timezone('utc'::text, now()),
@@ -21,7 +22,7 @@ create table public.testimonials (
 );
 
 -- Create payment_notifications table
-create table public.payment_notifications (
+create table if not exists public.payment_notifications (
     id uuid default uuid_generate_v4() primary key,
     created_at timestamp with time zone default timezone('utc'::text, now()) not null,
     updated_at timestamp with time zone default timezone('utc'::text, now()),
@@ -43,6 +44,10 @@ begin
 end;
 $$;
 
+-- Drop existing triggers if they exist
+drop trigger if exists handle_testimonials_updated_at on public.testimonials;
+drop trigger if exists handle_payment_notifications_updated_at on public.payment_notifications;
+
 -- Create updated_at triggers
 create trigger handle_testimonials_updated_at
     before update on public.testimonials
@@ -55,7 +60,7 @@ create trigger handle_payment_notifications_updated_at
     execute function public.handle_updated_at();
 
 -- Create indexes for better performance
-create index testimonials_platform_idx on public.testimonials (platform);
-create index testimonials_created_at_idx on public.testimonials (created_at desc);
-create index payment_notifications_platform_idx on public.payment_notifications (platform);
-create index payment_notifications_created_at_idx on public.payment_notifications (created_at desc);
+create index if not exists testimonials_platform_idx on public.testimonials (platform);
+create index if not exists testimonials_created_at_idx on public.testimonials (created_at desc);
+create index if not exists payment_notifications_platform_idx on public.payment_notifications (platform);
+create index if not exists payment_notifications_created_at_idx on public.payment_notifications (created_at desc);

@@ -1,11 +1,36 @@
 export interface Database {
   public: {
     Tables: {
+      users: {
+        Row: {
+          id: string;
+          created_at: string;
+          updated_at: string | null;
+          email: string;
+          name: string | null;
+          avatar_url: string | null;
+          settings: {
+            language: string;
+            timezone: string;
+            email_notifications: boolean;
+            product_updates: boolean;
+          } | null;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          name?: string | null;
+          avatar_url?: string | null;
+          settings?: Record<string, any> | null;
+        };
+        Update: Partial<Database['public']['Tables']['users']['Insert']>;
+      };
       testimonials: {
         Row: {
           id: string;
           created_at: string;
           updated_at: string | null;
+          user_id: string;
           platform: 'facebook' | 'twitter' | 'trustpilot' | 'email';
           content: string;
           title: string | null;
@@ -27,6 +52,7 @@ export interface Database {
           id: string;
           created_at: string;
           updated_at: string | null;
+          user_id: string;
           platform: 'stripe' | 'paypal';
           currency: string;
           recipients: Record<string, any>;

@@ -10,7 +10,8 @@ import {
   ChevronDown,
   ChevronUp,
   Loader2,
-  Menu
+  Menu,
+  LogIn
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
@@ -19,10 +20,11 @@ import { TokenBalance } from './TokenBalance';
 interface Props {
   currentView: 'dashboard' | 'generator' | 'history' | 'settings' | 'payment-screenshot';
   onViewChange: (view: 'dashboard' | 'generator' | 'history' | 'settings' | 'payment-screenshot') => void;
+  onShowAuth: () => void;
 }
 
-export function Sidebar({ currentView, onViewChange }: Props) {
-  const { signOut } = useAuth();
+export function Sidebar({ currentView, onViewChange, onShowAuth }: Props) {
+  const { user, signOut } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
@@ -63,6 +65,8 @@ export function Sidebar({ currentView, onViewChange }: Props) {
       await signOut();
     } catch (error) {
       console.error('Logout failed:', error);
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -246,26 +250,42 @@ export function Sidebar({ currentView, onViewChange }: Props) {
             <TokenBalance />
           )}
           
-          <button 
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            className={cn(
-              "w-full flex items-center rounded-lg text-gray-600 hover:bg-gray-200/50 hover:text-gray-900 transition-colors mt-2",
-              isCollapsed ? "px-3 py-2.5 justify-center" : "px-4 py-2"
-            )}
-            title={isCollapsed ? "Logout" : undefined}
-          >
-            {isLoggingOut ? (
-              <Loader2 size={18} className="animate-spin" />
-            ) : (
-              <LogOut size={18} />
-            )}
-            {!isCollapsed && (
-              <span className="ml-3 text-sm font-medium">
-                {isLoggingOut ? 'Logging out...' : 'Logout'}
-              </span>
-            )}
-          </button>
+          {user ? (
+            <button 
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className={cn(
+                "w-full flex items-center rounded-lg text-gray-600 hover:bg-gray-200/50 hover:text-gray-900 transition-colors mt-2",
+                isCollapsed ? "px-3 py-2.5 justify-center" : "px-4 py-2"
+              )}
+              title={isCollapsed ? "Logout" : undefined}
+            >
+              {isLoggingOut ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : (
+                <LogOut size={18} />
+              )}
+              {!isCollapsed && (
+                <span className="ml-3 text-sm font-medium">
+                  {isLoggingOut ? 'Logging out...' : 'Logout'}
+                </span>
+              )}
+            </button>
+          ) : (
+            <button 
+              onClick={onShowAuth}
+              className={cn(
+                "w-full flex items-center rounded-lg text-gray-600 hover:bg-gray-200/50 hover:text-gray-900 transition-colors mt-2",
+                isCollapsed ? "px-3 py-2.5 justify-center" : "px-4 py-2"
+              )}
+              title={isCollapsed ? "Sign In" : undefined}
+            >
+              <LogIn size={18} />
+              {!isCollapsed && (
+                <span className="ml-3 text-sm font-medium">Sign In</span>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

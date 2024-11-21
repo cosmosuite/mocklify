@@ -9,9 +9,8 @@ import { Settings } from './components/Settings';
 import { PaymentScreenshot } from './components/PaymentScreenshot';
 import { AuthModal } from './components/auth/AuthModal';
 import { saveTestimonial } from './utils/db';
-import { generateTestimonial } from './utils/testimonialGenerator';
-import { downloadSingleTestimonial } from './utils/download';
 import type { GeneratedTestimonial, TestimonialForm as TestimonialFormType } from './types';
+import { generateTestimonial } from './utils/testimonialGenerator';
 import { runAllTests } from './utils/testDb';
 
 // Run tests on startup
@@ -58,7 +57,11 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen bg-white">
-      <Sidebar currentView={currentView} onViewChange={handleViewChange} />
+      <Sidebar 
+        currentView={currentView} 
+        onViewChange={handleViewChange} 
+        onShowAuth={() => setShowAuthModal(true)} 
+      />
       
       <main className="flex-1 flex flex-col min-w-0 ml-16">
         {['generator', 'payment-screenshot'].includes(currentView) && (
