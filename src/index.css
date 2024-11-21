@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply antialiased text-gray-900;
+}
+
+select, input[type="text"] {
+  @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500;
+  height: 2.75rem;
+}
+
+/* Swiper Custom Styles */
+.swiper {
+  @apply overflow-visible !important;
+}
+
+.swiper-pagination {
+  @apply !bottom-0;
+}
+
+.swiper-pagination-bullet {
+  @apply !transition-all !duration-200;
+}
+
+/* Hide scrollbar for testimonial containers */
+.testimonial-content {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.testimonial-content::-webkit-scrollbar {
+  display: none;
+}
