@@ -1,124 +1,47 @@
-import { useState } from 'react';
-import { Header } from './components/Header';
-import { Sidebar } from './components/Sidebar';
-import { TestimonialForm } from './components/TestimonialForm';
-import { TestimonialList } from './components/TestimonialList';
-import { History } from './components/History';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { LoginPage } from './pages/LoginPage';
+import { MainLayout } from './layouts/MainLayout';
 import { Dashboard } from './components/Dashboard';
+import { TestimonialGenerator } from './components/TestimonialGenerator';
+import { History } from './components/History';
 import { Settings } from './components/Settings';
 import { PaymentScreenshot } from './components/PaymentScreenshot';
-import { AuthModal } from './components/auth/AuthModal';
-import { saveTestimonial } from './utils/db';
-import type { GeneratedTestimonial, TestimonialForm as TestimonialFormType } from './types';
-import { generateTestimonial } from './utils/testimonialGenerator';
-import { runAllTests } from './utils/testDb';
+import { useAuth } from './contexts/AuthContext';
 
-// Run tests on startup
-runAllTests().catch(console.error);
+// Protected Route Component
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  
+  if (!user) {
+    return <LoginPage />;
+  }
+
+  return <>{children}</>;
+}
 
 export default function App() {
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [currentView, setCurrentView] = useState<'dashboard' | 'generator' | 'history' | 'settings' | 'payment-screenshot'>('dashboard');
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentTestimonials, setCurrentTestimonials] = useState<GeneratedTestimonial[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async (form: TestimonialFormType) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const generated = await generateTestimonial(form);
-      await saveTestimonial(generated, form);
-      setCurrentTestimonials(prev => [generated, ...prev]);
-      return generated;
-    } catch (error) {
-      console.error('Failed to generate testimonial:', error);
-      setError('Failed to generate testimonial. Please try again.');
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleEdit = (id: string) => {
-    alert('Edit functionality would be implemented here');
-  };
-
-  const handleDownload = async (testimonial: GeneratedTestimonial) => {
-    await downloadSingleTestimonial(testimonial);
-  };
-
-  const handleViewChange = (view: 'dashboard' | 'generator' | 'history' | 'settings' | 'payment-screenshot') => {
-    if (view !== currentView) {
-      setCurrentTestimonials([]);
-    }
-    setCurrentView(view);
-  };
-
   return (
-    <div className="flex min-h-screen bg-white">
-      <Sidebar 
-        currentView={currentView} 
-        onViewChange={handleViewChange} 
-        onShowAuth={() => setShowAuthModal(true)} 
-      />
-      
-      <main className="flex-1 flex flex-col min-w-0 ml-16">
-        {['generator', 'payment-screenshot'].includes(currentView) && (
-          <Header currentView={currentView} />
-        )}
-        
-        <div className="flex-1 bg-gray-50">
-          {error && (
-            <div className="max-w-7xl mx-auto px-6 py-4">
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{error}</p>
-              </div>
-            </div>
-          )}
-
-          {currentView === 'dashboard' ? (
-            <Dashboard onNavigate={handleViewChange} />
-          ) : currentView === 'generator' ? (
-            <div className="max-w-7xl mx-auto px-6 py-8">
-              <div className="flex gap-8">
-                <div className="w-[400px] flex-shrink-0">
-                  <div className="sticky top-8">
-                    <TestimonialForm onSubmit={handleSubmit} isLoading={isLoading} />
-                  </div>
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  {currentTestimonials.length > 0 || isLoading ? (
-                    <TestimonialList
-                      testimonials={currentTestimonials}
-                      onEdit={handleEdit}
-                      onDownload={handleDownload}
-                      isLoading={isLoading}
-                    />
-                  ) : (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-                      <p className="text-gray-500">
-                        Generated testimonials will appear here
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ) : currentView === 'history' ? (
-            <History />
-          ) : currentView === 'payment-screenshot' ? (
-            <PaymentScreenshot />
-          ) : (
-            <Settings />
-          )}
-        </div>
-      </main>
-
-      {showAuthModal && (
-        <AuthModal onClose={() => setShowAuthModal(false)} />
-      )}
-    </div>
+    <Router>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <MainLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Dashboard onNavigate={() => {}} />} />
+            <Route path="generator" element={<TestimonialGenerator />} />
+            <Route path="history" element={<History />} />
+            <Route path="payment-screenshot" element={<PaymentScreenshot />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 }

@@ -3,7 +3,6 @@ import { TestimonialCarousel } from './TestimonialCarousel';
 import { PaymentCarousel } from './PaymentCarousel';
 import { Loader2, Search, Globe, FileText, Filter, Trash2 } from 'lucide-react';
 import type { GeneratedTestimonial } from '../types';
-import { downloadSingleTestimonial, downloadAllTestimonials } from '../utils/download';
 import { getTestimonials, getPaymentNotifications, deleteTestimonial, deletePaymentNotification } from '../utils/db';
 
 type ProjectGroup = {
@@ -23,8 +22,6 @@ export function History() {
   const [selectedPlatform, setSelectedPlatform] = useState<string>('all');
   const [activeTab, setActiveTab] = useState<'testimonials' | 'payments'>('testimonials');
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  const [downloadingId, setDownloadingId] = useState<string | null>(null);
-  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
 
   const loadData = async () => {
     try {
@@ -33,9 +30,11 @@ export function History() {
 
       if (activeTab === 'testimonials') {
         const data = await getTestimonials();
+        console.log('Loaded testimonials:', data);
         setTestimonials(data);
       } else {
         const data = await getPaymentNotifications();
+        console.log('Loaded payment notifications:', data);
         setPaymentNotifications(data);
       }
     } catch (error) {
@@ -85,44 +84,6 @@ export function History() {
     });
 
     setProjectGroups(filteredGroups);
-  };
-
-  const handleEdit = (id: string) => {
-    // Edit functionality would be implemented here
-  };
-
-  const handleDownload = async (testimonial: GeneratedTestimonial) => {
-    setDownloadingId(testimonial.id);
-    setError(null);
-    try {
-      await downloadSingleTestimonial(testimonial);
-    } catch (error) {
-      console.error('Download failed:', error);
-      setError('Failed to download testimonial. Please try again.');
-    } finally {
-      setDownloadingId(null);
-    }
-  };
-
-  const handleDownloadAll = async () => {
-    setError(null);
-    setIsDownloadingAll(true);
-    try {
-      await downloadAllTestimonials(testimonials);
-    } catch (error) {
-      console.error('Download failed:', error);
-      setError('Failed to download testimonials. Please try again.');
-    } finally {
-      setIsDownloadingAll(false);
-    }
-  };
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
-
-  const handlePlatformChange = (platform: string) => {
-    setSelectedPlatform(platform);
   };
 
   const handleDelete = async (type: 'testimonial' | 'payment', id: string) => {
@@ -197,7 +158,7 @@ export function History() {
                   type="text"
                   placeholder="Search testimonials..."
                   value={searchQuery}
-                  onChange={handleSearch}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300"
                 />
               </div>
@@ -206,7 +167,7 @@ export function History() {
                 <Filter size={20} className="text-gray-400" />
                 <select
                   value={selectedPlatform}
-                  onChange={(e) => handlePlatformChange(e.target.value)}
+                  onChange={(e) => setSelectedPlatform(e.target.value)}
                   className="pl-3 pr-8 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300 bg-white"
                 >
                   <option value="all">All Platforms</option>
@@ -243,8 +204,8 @@ export function History() {
                   <div className="p-6">
                     <TestimonialCarousel
                       testimonials={group.testimonials}
-                      onEdit={handleEdit}
-                      onDownload={handleDownload}
+                      onEdit={() => {}}
+                      onDownload={() => {}}
                       onDelete={(id) => handleDelete('testimonial', id)}
                       isDeleting={isDeleting}
                     />
@@ -308,6 +269,12 @@ export function History() {
                 <p className="text-sm mt-1">Generate some notifications to see them here</p>
               </div>
             )}
+          </div>
+        )}
+
+        {error && (
+          <div className="fixed bottom-4 right-4 p-4 bg-red-50 border border-red-100 rounded-lg shadow-lg">
+            <p className="text-sm text-red-600">{error}</p>
           </div>
         )}
       </div>

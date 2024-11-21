@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Mail, Lock, Loader2, ArrowRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 
 interface Props {
   onClose: () => void;
@@ -13,8 +13,8 @@ export function AuthModal({ onClose }: Props) {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
