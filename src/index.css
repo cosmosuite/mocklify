@@ -6,21 +6,52 @@ body {
   @apply antialiased text-gray-900;
 }
 
-select, input[type="text"] {
-  @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500;
-  height: 2.75rem;
+/* Custom Calendar Styles */
+input[type="date"] {
+  position: relative;
+  cursor: pointer;
 }
 
-/* Swiper Custom Styles */
-.swiper {
+input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 8px;
+  padding: 8px;
+  cursor: pointer;
+  background-color: transparent;
+  border-radius: 4px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button {
+  display: none;
+}
+
+/* Custom Carousel Styles */
+.testimonial-carousel {
+  @apply relative;
+}
+
+.testimonial-carousel .swiper {
   @apply overflow-visible !important;
 }
 
-.swiper-pagination {
+.testimonial-carousel .swiper-wrapper {
+  @apply items-stretch;
+}
+
+.testimonial-carousel .swiper-slide {
+  @apply h-auto flex;
+}
+
+.testimonial-carousel .swiper-pagination {
   @apply !bottom-0;
 }
 
-.swiper-pagination-bullet {
+.testimonial-carousel .swiper-pagination-bullet {
   @apply !transition-all !duration-200;
 }
 
@@ -32,4 +63,19 @@ select, input[type="text"] {
 
 .testimonial-content::-webkit-scrollbar {
   display: none;
+}
+
+/* Form and Testimonial List Layout */
+.testimonial-layout {
+  @apply grid gap-8;
+  grid-template-columns: 400px minmax(0, 1fr);
+}
+
+.testimonial-form {
+  @apply sticky top-8 z-20;
+  height: fit-content;
+}
+
+.testimonial-list {
+  @apply relative z-10;
 }

@@ -1,219 +1,148 @@
-import { supabase } from '../lib/supabase';
-import type { GeneratedTestimonial, TestimonialForm } from '../types';
+import { supabase, getAuthHeaders } from './supabase';
 
-export async function saveTestimonial(
-  testimonial: GeneratedTestimonial,
-  form: TestimonialForm
-): Promise<GeneratedTestimonial> {
-  try {
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
-    // Save to Supabase
-    const { error } = await supabase
-      .from('testimonials')
-      .insert({
-        id: testimonial.id,
-        user_id: user.id,
-        platform: testimonial.platform,
-        content: testimonial.content,
-        title: testimonial.title,
-        author_name: testimonial.author.name,
-        author_handle: testimonial.author.handle,
-        author_avatar: testimonial.author.avatar,
-        author_location: testimonial.author.location,
-        author_verified: testimonial.author.isVerified,
-        author_review_count: testimonial.author.reviewCount,
-        metrics: testimonial.metrics,
-        tone: form.tone,
-        product_info: form.productInfo
-      });
-
-    if (error) {
-      console.error('Supabase error:', error);
-      throw error;
-    }
-
-    return testimonial;
-  } catch (error) {
-    console.error('Failed to save testimonial:', error);
-    throw error;
-  }
-}
-
-export async function getTestimonials(): Promise<GeneratedTestimonial[]> {
-  try {
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
-    const { data, error } = await supabase
-      .from('testimonials')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Supabase error:', error);
-      throw error;
-    }
-
-    return data.map(transformDatabaseTestimonial);
-  } catch (error) {
-    console.error('Failed to get testimonials:', error);
-    throw error;
-  }
-}
-
-export async function deleteTestimonial(id: string): Promise<void> {
-  try {
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
-    const { error } = await supabase
-      .from('testimonials')
-      .delete()
-      .eq('id', id)
-      .eq('user_id', user.id);
-
-    if (error) {
-      console.error('Supabase error:', error);
-      throw error;
-    }
-  } catch (error) {
-    console.error('Failed to delete testimonial:', error);
-    throw error;
-  }
-}
-
-export async function savePaymentNotification(formData: {
-  platform: 'stripe' | 'paypal';
-  stripeRecipients: Array<{
-    identifier: string;
-    amount: string;
-    timestamp: string;
-  }>;
-  paypalRecipients: Array<{
-    identifier: string;
-    amount: string;
-    timestamp: string;
-  }>;
-  currency: string;
-  wallpaper: string;
-  customBackground?: string | null;
-}): Promise<any> {
-  try {
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
-    const { data, error } = await supabase
-      .from('payment_notifications')
-      .insert({
-        user_id: user.id,
-        platform: formData.platform,
-        currency: formData.currency,
-        recipients: formData.platform === 'stripe' ? formData.stripeRecipients : formData.paypalRecipients,
-        wallpaper: formData.wallpaper,
-        custom_background: formData.customBackground
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Supabase error:', error);
-      throw error;
-    }
-
-    return data;
-  } catch (error) {
-    console.error('Failed to save payment notification:', error);
-    throw error;
-  }
-}
-
-export async function getPaymentNotifications(): Promise<any[]> {
-  try {
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
-    const { data, error } = await supabase
-      .from('payment_notifications')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Supabase error:', error);
-      throw error;
-    }
-
-    return data;
-  } catch (error) {
-    console.error('Failed to get payment notifications:', error);
-    throw error;
-  }
-}
-
-export async function deletePaymentNotification(id: string): Promise<void> {
-  try {
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
-    const { error } = await supabase
-      .from('payment_notifications')
-      .delete()
-      .eq('id', id)
-      .eq('user_id', user.id);
-
-    if (error) {
-      console.error('Supabase error:', error);
-      throw error;
-    }
-  } catch (error) {
-    console.error('Failed to delete payment notification:', error);
-    throw error;
-  }
-}
-
-function transformDatabaseTestimonial(dbTestimonial: any): GeneratedTestimonial {
-  return {
-    id: dbTestimonial.id,
-    platform: dbTestimonial.platform,
-    content: dbTestimonial.content,
-    title: dbTestimonial.title,
-    author: {
-      name: dbTestimonial.author_name,
-      handle: dbTestimonial.author_handle,
-      avatar: dbTestimonial.author_avatar,
-      location: dbTestimonial.author_location,
-      isVerified: dbTestimonial.author_verified,
-      reviewCount: dbTestimonial.author_review_count
-    },
-    timestamp: new Date(dbTestimonial.created_at),
-    metrics: dbTestimonial.metrics,
-    productInfo: dbTestimonial.product_info
+interface UserProfile {
+  id: string;
+  created_at: string;
+  email: string;
+  name?: string;
+  avatar_url?: string;
+  settings?: {
+    language?: string;
+    timezone?: string;
+    email_notifications?: boolean;
+    product_updates?: boolean;
   };
+}
+
+export async function getUserProfile(userId: string): Promise<UserProfile> {
+  if (!userId) {
+    throw new Error('User ID is required');
+  }
+
+  try {
+    const headers = await getAuthHeaders();
+    
+    // First try to get existing profile
+    const { data: profile, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .single()
+      .headers(headers);
+
+    if (error) {
+      // If profile doesn't exist, get user data from auth and create profile
+      if (error.code === 'PGRST116') {
+        const { data: { user }, error: authError } = await supabase.auth.getUser(userId);
+        
+        if (authError) {
+          console.error('Auth error:', authError);
+          throw authError;
+        }
+        
+        if (!user) {
+          throw new Error('User not found');
+        }
+
+        const defaultSettings = {
+          language: 'en',
+          timezone: 'UTC',
+          email_notifications: true,
+          product_updates: true
+        };
+
+        const { data: newProfile, error: createError } = await supabase
+          .from('users')
+          .insert([
+            { 
+              id: userId,
+              email: user.email,
+              created_at: new Date().toISOString(),
+              settings: defaultSettings
+            }
+          ])
+          .select()
+          .single()
+          .headers(headers);
+
+        if (createError) {
+          console.error('Failed to create user profile:', createError);
+          throw new Error('Failed to create user profile');
+        }
+
+        return newProfile;
+      }
+      
+      console.error('Failed to fetch user profile:', error);
+      throw new Error('Failed to fetch user profile');
+    }
+
+    return profile;
+  } catch (error) {
+    console.error('Error in getUserProfile:', error);
+    throw error;
+  }
+}
+
+interface ProfileUpdates {
+  name?: string;
+  avatar_url?: string;
+  settings?: {
+    language?: string;
+    timezone?: string;
+    email_notifications?: boolean;
+    product_updates?: boolean;
+  };
+}
+
+export async function updateUserProfile(userId: string, updates: ProfileUpdates): Promise<UserProfile> {
+  if (!userId) {
+    throw new Error('User ID is required');
+  }
+
+  try {
+    const headers = await getAuthHeaders();
+    
+    // Get existing profile to merge settings
+    const { data: existingProfile, error: fetchError } = await supabase
+      .from('users')
+      .select('settings')
+      .eq('id', userId)
+      .single()
+      .headers(headers);
+
+    if (fetchError) {
+      console.error('Failed to fetch existing profile:', fetchError);
+      throw fetchError;
+    }
+
+    // Merge existing and new settings
+    const mergedSettings = {
+      ...existingProfile?.settings,
+      ...updates.settings
+    };
+
+    // Update profile with merged settings
+    const { data, error } = await supabase
+      .from('users')
+      .update({
+        ...updates,
+        settings: mergedSettings,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId)
+      .select()
+      .single()
+      .headers(headers);
+
+    if (error) {
+      console.error('Failed to update user profile:', error);
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error in updateUserProfile:', error);
+    throw error;
+  }
 }

@@ -1,23 +1,28 @@
 import { useState } from 'react';
-import { TestimonialForm } from './TestimonialForm';
 import { TestimonialList } from './TestimonialList';
 import { generateTestimonial } from '../utils/testimonialGenerator';
 import { saveTestimonial } from '../utils/db';
 import type { GeneratedTestimonial, TestimonialForm as TestimonialFormType } from '../types';
+import { TestimonialForm } from './testimonial-form';
 
 export function TestimonialGenerator() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentTestimonials, setCurrentTestimonials] = useState<GeneratedTestimonial[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [generationQueue, setGenerationQueue] = useState<number>(0);
 
   const handleSubmit = async (form: TestimonialFormType) => {
-    setIsLoading(true);
+    if (isLoading) return;
+    
     setError(null);
+    setGenerationQueue(prev => prev + 1);
+    setIsLoading(true);
+
     try {
       // Generate the testimonial
       const generated = await generateTestimonial(form);
       
-      // Save to database and localStorage
+      // Save to database
       await saveTestimonial(generated, form);
       
       // Update UI
@@ -29,7 +34,10 @@ export function TestimonialGenerator() {
       setError('Failed to generate testimonial. Please try again.');
       throw error;
     } finally {
-      setIsLoading(false);
+      setGenerationQueue(prev => prev - 1);
+      if (generationQueue <= 1) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -48,31 +56,27 @@ export function TestimonialGenerator() {
         </div>
       )}
 
-      <div className="flex gap-8">
-        {/* Form Section - Higher z-index to stay on top */}
-        <div className="w-[400px] flex-shrink-0 relative z-20">
-          <div className="sticky top-8">
-            <TestimonialForm onSubmit={handleSubmit} isLoading={isLoading} />
-          </div>
+      <div className="testimonial-layout">
+        {/* Form Section */}
+        <div className="testimonial-form">
+          <TestimonialForm onSubmit={handleSubmit} isLoading={isLoading} />
         </div>
 
-        {/* Testimonials Section - Lower z-index */}
-        <div className="flex-1 min-w-0 relative z-10">
-          <div className="relative">
-            {currentTestimonials.length > 0 || isLoading ? (
-              <TestimonialList
-                testimonials={currentTestimonials}
-                onEdit={handleEdit}
-                isLoading={isLoading}
-              />
-            ) : (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-                <p className="text-gray-500">
-                  Generated testimonials will appear here
-                </p>
-              </div>
-            )}
-          </div>
+        {/* Testimonials Section */}
+        <div className="testimonial-list">
+          {currentTestimonials.length > 0 || isLoading ? (
+            <TestimonialList
+              testimonials={currentTestimonials}
+              onEdit={handleEdit}
+              isLoading={isLoading}
+            />
+          ) : (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+              <p className="text-gray-500">
+                Generated testimonials will appear here
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
