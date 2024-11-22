@@ -15,4 +15,13 @@ export default defineConfig({
       include: '**/*.svg',
     }),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+        },
+      },
+    },
+  },
 });
