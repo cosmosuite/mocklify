@@ -6,7 +6,10 @@ interface AuthContextType {
   user: User | null;
   signOut: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string) => Promise<{ 
+    error: string | null;
+    needsEmailConfirmation?: boolean;
+  }>;
   isLoading: boolean;
   error: string | null;
 }
@@ -60,10 +63,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error: error.message };
       }
 
-      if (data?.user) {
-        console.log('User created:', data.user.id);
-        // Auto sign in after signup for better UX
-        return signIn(email, password);
+      // Check if email confirmation is required
+      if (data?.user && !data.user.confirmed_at) {
+        return { 
+          error: null,
+          needsEmailConfirmation: true
+        };
       }
 
       return { error: null };
@@ -85,6 +90,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error) {
         console.error('Signin error:', error);
+        // Check if the error is due to unconfirmed email
+        if (error.message.toLowerCase().includes('email not confirmed')) {
+          return { error: 'Email not confirmed' };
+        }
         return { error: 'Invalid email or password' };
       }
 
