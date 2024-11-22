@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { TestimonialCarousel } from './TestimonialCarousel';
 import { PaymentCarousel } from './PaymentCarousel';
-import { Loader2, Search, Globe, FileText, Filter, Trash2 } from 'lucide-react';
-import type { GeneratedTestimonial } from '../types';
+import { Loader2, Search, Globe, FileText, Filter, LayoutGrid, LayoutList } from 'lucide-react';
+import type { GeneratedTestimonial, Platform } from '../types';
 import { getTestimonials, getPaymentNotifications, deleteTestimonial, deletePaymentNotification } from '../utils/db';
+import { KanbanBoard } from './KanbanBoard';
+import { cn } from '../lib/utils';
 
 type ProjectGroup = {
   id: string;
@@ -11,6 +13,8 @@ type ProjectGroup = {
   type: 'url' | 'description';
   testimonials: GeneratedTestimonial[];
 };
+
+type ViewMode = 'kanban' | 'list';
 
 export function History() {
   const [testimonials, setTestimonials] = useState<GeneratedTestimonial[]>([]);
@@ -22,6 +26,7 @@ export function History() {
   const [selectedPlatform, setSelectedPlatform] = useState<string>('all');
   const [activeTab, setActiveTab] = useState<'testimonials' | 'payments'>('testimonials');
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('kanban'); // Changed default to 'kanban'
 
   const loadData = async () => {
     try {
@@ -163,63 +168,100 @@ export function History() {
                 />
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Filter size={20} className="text-gray-400" />
-                <select
-                  value={selectedPlatform}
-                  onChange={(e) => setSelectedPlatform(e.target.value)}
-                  className="pl-3 pr-8 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300 bg-white"
-                >
-                  <option value="all">All Platforms</option>
-                  <option value="facebook">Facebook</option>
-                  <option value="twitter">Twitter</option>
-                  <option value="trustpilot">Trustpilot</option>
-                </select>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <Filter size={20} className="text-gray-400" />
+                  <select
+                    value={selectedPlatform}
+                    onChange={(e) => setSelectedPlatform(e.target.value)}
+                    className="pl-3 pr-8 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-100 focus:border-gray-300 bg-white"
+                  >
+                    <option value="all">All Platforms</option>
+                    <option value="facebook">Facebook</option>
+                    <option value="twitter">Twitter</option>
+                    <option value="trustpilot">Trustpilot</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center space-x-1 border border-gray-200 rounded-lg">
+                  <button
+                    onClick={() => setViewMode('kanban')}
+                    className={cn(
+                      "p-2 rounded-l-lg",
+                      viewMode === 'kanban' 
+                        ? "bg-gray-100 text-gray-900" 
+                        : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                    )}
+                    title="Kanban view"
+                  >
+                    <LayoutGrid size={20} />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={cn(
+                      "p-2 rounded-r-lg",
+                      viewMode === 'list' 
+                        ? "bg-gray-100 text-gray-900" 
+                        : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                    )}
+                    title="List view"
+                  >
+                    <LayoutList size={20} />
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Testimonials Grid */}
-            <div className="grid gap-6">
-              {projectGroups.map((group) => (
-                <div
-                  key={group.id}
-                  className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
-                >
-                  <div className="px-6 py-4 border-b border-gray-200">
-                    <div className="flex items-center space-x-2">
-                      {group.type === 'url' ? (
-                        <Globe size={20} className="text-blue-500" />
-                      ) : (
-                        <FileText size={20} className="text-green-500" />
-                      )}
-                      <h2 className="text-lg font-semibold text-gray-900 truncate">
-                        {group.source}
-                      </h2>
-                      <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                        {group.testimonials.length} testimonial{group.testimonials.length !== 1 ? 's' : ''}
-                      </span>
+            {viewMode === 'kanban' ? (
+              <KanbanBoard
+                testimonials={testimonials}
+                onDelete={(id) => handleDelete('testimonial', id)}
+                isDeleting={isDeleting}
+              />
+            ) : (
+              <div className="grid gap-6">
+                {projectGroups.map((group) => (
+                  <div
+                    key={group.id}
+                    className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+                  >
+                    <div className="px-6 py-4 border-b border-gray-200">
+                      <div className="flex items-center space-x-2">
+                        {group.type === 'url' ? (
+                          <Globe size={20} className="text-blue-500" />
+                        ) : (
+                          <FileText size={20} className="text-green-500" />
+                        )}
+                        <h2 className="text-lg font-semibold text-gray-900 truncate">
+                          {group.source}
+                        </h2>
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                          {group.testimonials.length} testimonial{group.testimonials.length !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      <TestimonialCarousel
+                        testimonials={group.testimonials}
+                        onEdit={() => {}}
+                        onDownload={() => {}}
+                        onDelete={(id) => handleDelete('testimonial', id)}
+                        isDeleting={isDeleting}
+                      />
                     </div>
                   </div>
+                ))}
 
-                  <div className="p-6">
-                    <TestimonialCarousel
-                      testimonials={group.testimonials}
-                      onEdit={() => {}}
-                      onDownload={() => {}}
-                      onDelete={(id) => handleDelete('testimonial', id)}
-                      isDeleting={isDeleting}
-                    />
+                {projectGroups.length === 0 && (
+                  <div className="text-center text-gray-500 py-12">
+                    <p>No testimonials found</p>
+                    <p className="text-sm mt-1">Generate some testimonials to see them here</p>
                   </div>
-                </div>
-              ))}
-
-              {projectGroups.length === 0 && (
-                <div className="text-center text-gray-500 py-12">
-                  <p>No testimonials found</p>
-                  <p className="text-sm mt-1">Generate some testimonials to see them here</p>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </>
         ) : (
           <div className="grid gap-6">
