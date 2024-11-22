@@ -15,5 +15,10 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
     storage: localStorage,
     detectSessionInUrl: true,
     flowType: 'pkce'
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'testimonial-generator'
+    }
   }
 });
