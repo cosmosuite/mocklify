@@ -7,6 +7,7 @@ import { TestimonialGenerator } from './components/TestimonialGenerator';
 import { History } from './components/History';
 import { Settings } from './components/Settings';
 import { PaymentScreenshot } from './components/PaymentScreenshot';
+import { AuthCallback } from './components/auth/AuthCallback';
 import { useAuth } from './contexts/AuthContext';
 
 // Protected Route Component
@@ -26,6 +27,7 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route
             path="/"
             element={
