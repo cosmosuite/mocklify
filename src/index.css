@@ -6,63 +6,35 @@ body {
   @apply antialiased text-gray-900;
 }
 
-/* Custom Calendar Styles */
-input[type="date"] {
-  position: relative;
-  cursor: pointer;
+/* Custom Scrollbar Styles */
+.scrollbar-thin {
+  scrollbar-width: thin;
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator {
-  position: absolute;
-  right: 8px;
-  padding: 8px;
-  cursor: pointer;
-  background-color: transparent;
-  border-radius: 4px;
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator:hover {
-  background-color: rgba(0, 0, 0, 0.04);
+.scrollbar-thin::-webkit-scrollbar-track {
+  @apply bg-transparent;
 }
 
-input[type="date"]::-webkit-inner-spin-button,
-input[type="date"]::-webkit-clear-button {
-  display: none;
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full hover:bg-gray-400 transition-colors;
 }
 
-/* Custom Carousel Styles */
-.testimonial-carousel {
-  @apply relative;
+/* Testimonial List Layout */
+.testimonial-columns {
+  @apply flex gap-8 pb-6 overflow-x-auto scrollbar-thin;
+  scroll-padding: 2rem;
+  scroll-snap-type: x mandatory;
 }
 
-.testimonial-carousel .swiper {
-  @apply overflow-visible !important;
-}
-
-.testimonial-carousel .swiper-wrapper {
-  @apply items-stretch;
-}
-
-.testimonial-carousel .swiper-slide {
-  @apply h-auto flex;
-}
-
-.testimonial-carousel .swiper-pagination {
-  @apply !bottom-0;
-}
-
-.testimonial-carousel .swiper-pagination-bullet {
-  @apply !transition-all !duration-200;
-}
-
-/* Hide scrollbar for testimonial containers */
-.testimonial-content {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.testimonial-content::-webkit-scrollbar {
-  display: none;
+.testimonial-column {
+  @apply flex-none space-y-6;
+  width: min(450px, calc(100vw - 4rem));
+  scroll-snap-align: start;
 }
 
 /* Form and Testimonial List Layout */
@@ -77,5 +49,44 @@ input[type="date"]::-webkit-clear-button {
 }
 
 .testimonial-list {
-  @apply relative z-10;
+  @apply relative z-10 min-w-0;
+}
+
+/* Platform-specific card styles */
+.testimonial-card {
+  @apply bg-white rounded-lg border border-gray-200 overflow-hidden transition-shadow hover:shadow-md;
+}
+
+.testimonial-card-header {
+  @apply px-3 py-2 border-b border-gray-100 flex items-center justify-between;
+}
+
+.testimonial-card-content {
+  @apply p-4;
+}
+
+/* Platform badges */
+.platform-badge {
+  @apply px-2.5 py-1 rounded-full text-xs font-medium capitalize text-white;
+}
+
+.platform-badge-facebook {
+  @apply bg-[#1877f2];
+}
+
+.platform-badge-twitter {
+  @apply bg-black;
+}
+
+.platform-badge-trustpilot {
+  @apply bg-[#00b67a];
+}
+
+.platform-badge-email {
+  @apply bg-[#EA4335];
+}
+
+/* Action buttons */
+.action-button {
+  @apply p-1.5 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-50 transition-colors;
 }
