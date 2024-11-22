@@ -34,7 +34,7 @@ export default function App() {
               </ProtectedRoute>
             }
           >
-            <Route index element={<Dashboard onNavigate={() => {}} />} />
+            <Route index element={<Dashboard />} />
             <Route path="generator" element={<TestimonialGenerator />} />
             <Route path="history" element={<History />} />
             <Route path="payment-screenshot" element={<PaymentScreenshot />} />

@@ -33,12 +33,9 @@ export function TestimonialGenerator() {
     }
   };
 
-  const handleEdit = (_id: string) => {
-    alert('Edit functionality would be implemented here');
-  };
-
-  const handleDownload = async (_testimonial: GeneratedTestimonial) => {
-    // Download functionality will be implemented here
+  const handleEdit = (testimonialId: string) => {
+    // Edit functionality will be implemented later
+    console.log('Edit testimonial:', testimonialId);
   };
 
   return (
@@ -52,27 +49,30 @@ export function TestimonialGenerator() {
       )}
 
       <div className="flex gap-8">
-        <div className="w-[400px] flex-shrink-0">
+        {/* Form Section - Higher z-index to stay on top */}
+        <div className="w-[400px] flex-shrink-0 relative z-20">
           <div className="sticky top-8">
             <TestimonialForm onSubmit={handleSubmit} isLoading={isLoading} />
           </div>
         </div>
 
-        <div className="flex-1 min-w-0">
-          {currentTestimonials.length > 0 || isLoading ? (
-            <TestimonialList
-              testimonials={currentTestimonials}
-              onEdit={handleEdit}
-              onDownload={handleDownload}
-              isLoading={isLoading}
-            />
-          ) : (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-              <p className="text-gray-500">
-                Generated testimonials will appear here
-              </p>
-            </div>
-          )}
+        {/* Testimonials Section - Lower z-index */}
+        <div className="flex-1 min-w-0 relative z-10">
+          <div className="relative">
+            {currentTestimonials.length > 0 || isLoading ? (
+              <TestimonialList
+                testimonials={currentTestimonials}
+                onEdit={handleEdit}
+                isLoading={isLoading}
+              />
+            ) : (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+                <p className="text-gray-500">
+                  Generated testimonials will appear here
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

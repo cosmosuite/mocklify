@@ -1,10 +1,13 @@
-import { MessageSquareQuote, ArrowRight, Receipt, Bell } from 'lucide-react';
+import { MessageSquareQuote, ArrowRight, Bell } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-interface Props {
-  onNavigate: (view: 'dashboard' | 'generator' | 'history' | 'payment-screenshot') => void;
-}
+export function Dashboard() {
+  const navigate = useNavigate();
 
-export function Dashboard({ onNavigate }: Props) {
+  const handleNavigate = (path: string) => {
+    navigate(`/${path}`);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-[1200px] mx-auto px-6 py-8">
@@ -13,7 +16,7 @@ export function Dashboard({ onNavigate }: Props) {
         <div className="grid gap-6 md:grid-cols-2">
           {/* Testimonial Generator Card */}
           <button 
-            onClick={() => onNavigate('generator')}
+            onClick={() => handleNavigate('generator')}
             className="text-left bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2"
           >
             <div className="flex items-center justify-between mb-4">
@@ -48,7 +51,7 @@ export function Dashboard({ onNavigate }: Props) {
 
           {/* Payment Notification Generator Card */}
           <button 
-            onClick={() => onNavigate('payment-screenshot')}
+            onClick={() => handleNavigate('payment-screenshot')}
             className="text-left bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2"
           >
             <div className="flex items-center justify-between mb-4">
