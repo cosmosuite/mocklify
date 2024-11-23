@@ -127,7 +127,13 @@ export function Sidebar({ currentView, onViewChange }: Props): JSX.Element {
         "h-16 px-4 flex items-center border-b border-gray-200",
         isCollapsed ? "justify-center" : "justify-between"
       )}>
-        {!isCollapsed && <div className="font-semibold text-xl text-gray-900">TestiGen</div>}
+        {!isCollapsed && (
+          <img 
+            src="https://storage.googleapis.com/msgsndr/0iO3mS8O2ALa5vmXwP3d/media/674200b17fc15f51f4219724.png" 
+            alt="Mocklify"
+            className="h-8"
+          />
+        )}
         <Menu className="w-5 h-5 text-gray-500" />
       </div>
 
