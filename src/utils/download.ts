@@ -9,9 +9,8 @@ const downloadOptions = {
   cacheBust: true,
   style: {
     margin: '0',
-    padding: '24px',
-    overflow: 'hidden',
-    backgroundColor: '#000000'
+    padding: '0',
+    overflow: 'hidden'
   },
   filter: (node: HTMLElement) => {
     // Keep everything except loading spinners or temporary UI elements
@@ -44,8 +43,7 @@ async function prepareElementForDownload(element: HTMLElement): Promise<() => vo
     transition: element.style.transition,
     margin: element.style.margin,
     padding: element.style.padding,
-    overflow: element.style.overflow,
-    backgroundColor: element.style.backgroundColor
+    overflow: element.style.overflow
   };
 
   // Wait for any animations to complete
@@ -58,16 +56,21 @@ async function prepareElementForDownload(element: HTMLElement): Promise<() => vo
   element.style.transform = 'none';
   element.style.transition = 'none';
   element.style.margin = '0';
-  element.style.padding = '24px';
+  element.style.padding = '0';
   element.style.overflow = 'hidden';
-  element.style.backgroundColor = '#000000';
 
   // Force layout recalculation
   await new Promise(resolve => requestAnimationFrame(resolve));
 
   // Return cleanup function
   return () => {
-    Object.assign(element.style, originalStyles);
+    element.style.width = originalStyles.width;
+    element.style.height = originalStyles.height;
+    element.style.transform = originalStyles.transform;
+    element.style.transition = originalStyles.transition;
+    element.style.margin = originalStyles.margin;
+    element.style.padding = originalStyles.padding;
+    element.style.overflow = originalStyles.overflow;
   };
 }
 
@@ -86,8 +89,8 @@ export async function downloadSingleTestimonial(testimonial: GeneratedTestimonia
     const rect = element.getBoundingClientRect();
     const options = {
       ...downloadOptions,
-      width: Math.ceil(rect.width + 48), // Add padding to width
-      height: Math.ceil(rect.height + 48) // Add padding to height
+      width: Math.ceil(rect.width),
+      height: Math.ceil(rect.height)
     };
 
     const dataUrl = await toPng(element, options);
@@ -134,8 +137,8 @@ export async function downloadAllTestimonials(testimonials: GeneratedTestimonial
         const rect = element.getBoundingClientRect();
         const options = {
           ...downloadOptions,
-          width: Math.ceil(rect.width + 48), // Add padding to width
-          height: Math.ceil(rect.height + 48) // Add padding to height
+          width: Math.ceil(rect.width),
+          height: Math.ceil(rect.height)
         };
 
         const dataUrl = await toPng(element, options);
