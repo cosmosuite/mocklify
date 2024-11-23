@@ -103,8 +103,8 @@ export function TestimonialCarousel({ testimonials, onEdit, onDownload, onDelete
                     </div>
                   </div>
 
-                  {/* Testimonial Content */}
-                  <div className="p-4">
+                  {/* Content - No extra padding that could affect Tweet layout */}
+                  <div className="p-0">
                     {testimonial.platform === 'facebook' ? (
                       <FacebookComment testimonial={testimonial} />
                     ) : testimonial.platform === 'twitter' ? (

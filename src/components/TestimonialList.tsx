@@ -155,8 +155,8 @@ export function TestimonialList({ testimonials, onEdit, isLoading }: Props) {
                         </div>
                       </div>
 
-                      {/* Content */}
-                      <div className="testimonial-card-content">
+                      {/* Content - No extra padding/margin that could affect Tweet layout */}
+                      <div className="testimonial-card-content p-0">
                         {renderTestimonial(testimonial)}
                       </div>
                     </div>
