@@ -1,4 +1,4 @@
-import { MessageSquareQuote, Bell } from 'lucide-react';
+import { Bell } from 'lucide-react';
 
 interface Props {
   currentView: 'dashboard' | 'generator' | 'history' | 'settings' | 'payment-screenshot';
@@ -9,9 +9,7 @@ export function Header({ currentView }: Props) {
     switch (currentView) {
       case 'generator':
         return {
-          icon: MessageSquareQuote,
-          title: 'Testimonial Generator',
-          description: 'Create authentic-looking social media testimonials in seconds.'
+          placeholder: true
         };
       case 'payment-screenshot':
         return {
@@ -27,6 +25,22 @@ export function Header({ currentView }: Props) {
   const content = getHeaderContent();
   
   if (!content) return null;
+
+  if (content.placeholder) {
+    return (
+      <div className="py-8 px-4 border-b border-gray-200">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-gray-50 rounded-xl overflow-hidden">
+            <div className="relative aspect-[6/1]">
+              <div className="absolute inset-0 p-4">
+                <div className="h-full bg-gray-100/50 backdrop-blur rounded-lg"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   const Icon = content.icon;
 

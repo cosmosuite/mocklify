@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
+import { cn } from '../lib/utils';
 
 export function MainLayout() {
   const location = useLocation();
@@ -11,6 +12,8 @@ export function MainLayout() {
     location.pathname.slice(1) as any
   );
 
+  const isDashboard = currentView === 'dashboard';
+
   const handleViewChange = (view: 'dashboard' | 'generator' | 'history' | 'settings' | 'payment-screenshot') => {
     setCurrentView(view);
     navigate(`/${view === 'dashboard' ? '' : view}`);
@@ -18,9 +21,16 @@ export function MainLayout() {
 
   return (
     <div className="flex min-h-screen bg-white">
-      <Sidebar currentView={currentView} onViewChange={handleViewChange} />
+      <Sidebar 
+        currentView={currentView} 
+        onViewChange={handleViewChange} 
+        forceExpanded={isDashboard}
+      />
       
-      <main className="flex-1 flex flex-col min-w-0 ml-16">
+      <main className={cn(
+        "flex-1 flex flex-col min-w-0",
+        isDashboard ? "ml-64" : "ml-16"
+      )}>
         {['generator', 'payment-screenshot'].includes(currentView) && (
           <Header currentView={currentView} />
         )}

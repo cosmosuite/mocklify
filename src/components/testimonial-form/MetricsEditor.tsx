@@ -8,6 +8,31 @@ interface Props {
   onChange: (field: keyof SocialMetrics, value: any) => void;
 }
 
+// Default metrics to prevent uncontrolled to controlled warnings
+const defaultMetrics: SocialMetrics = {
+  likes: 0,
+  comments: 0,
+  retweets: 0,
+  timeAgo: '2h',
+  bookmarks: 0,
+  reactions: ['like'],
+  views: 0,
+  isVerified: false,
+  rating: 4,
+  usefulCount: 0,
+  dateOfExperience: new Date().toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  }),
+  location: 'US',
+  reviewCount: 1,
+  subject: '',
+  starred: false,
+  important: false,
+  senderName: ''
+};
+
 const COUNTRY_CODES = [
   { code: 'US', name: 'United States' },
   { code: 'GB', name: 'United Kingdom' },
@@ -59,13 +84,43 @@ const FACEBOOK_REACTIONS: { value: FacebookReaction; icon: string; label: string
   }
 ];
 
-export function MetricsEditor({ selectedPlatforms, metrics, onChange }: Props) {
+const StarRating = ({ value, onChange }: { value: number; onChange: (rating: number) => void }) => {
+  const [hoverRating, setHoverRating] = useState<number | null>(null);
+  
+  return (
+    <div className="flex space-x-0.5">
+      {[1, 2, 3, 4, 5].map((rating) => (
+        <button
+          key={rating}
+          type="button"
+          onMouseEnter={() => setHoverRating(rating)}
+          onMouseLeave={() => setHoverRating(null)}
+          onClick={() => onChange(rating)}
+          className={`h-8 aspect-square transition-colors ${
+            rating <= (hoverRating ?? value) ? 'bg-[#06b57a]' : 'bg-[#dcdce6]'
+          }`}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            className="h-full w-full text-white"
+            fill="currentColor"
+          >
+            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+          </svg>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+export function MetricsEditor({ selectedPlatforms, metrics: rawMetrics, onChange }: Props) {
+  // Merge provided metrics with defaults to ensure all fields have values
+  const metrics = { ...defaultMetrics, ...rawMetrics };
   const today = new Date().toISOString().split('T')[0];
   const currentReactions = metrics.reactions || ['like'];
   const hasMaxReactions = currentReactions.length >= 3;
 
   const toggleReaction = (e: React.MouseEvent, reaction: FacebookReaction) => {
-    // Prevent form submission
     e.preventDefault();
     e.stopPropagation();
 
@@ -73,12 +128,9 @@ export function MetricsEditor({ selectedPlatforms, metrics, onChange }: Props) {
     const reactionIndex = newReactions.indexOf(reaction);
 
     if (reactionIndex > -1) {
-      // Remove reaction if it exists
       newReactions.splice(reactionIndex, 1);
-      // Always keep at least one reaction (like)
       if (newReactions.length === 0) newReactions.push('like');
     } else if (newReactions.length < 3) {
-      // Add reaction if under limit
       newReactions.push(reaction);
     }
 
@@ -127,7 +179,7 @@ export function MetricsEditor({ selectedPlatforms, metrics, onChange }: Props) {
                 return (
                   <button
                     key={value}
-                    type="button" // Prevent form submission
+                    type="button"
                     onClick={(e) => toggleReaction(e, value)}
                     disabled={isDisabled}
                     className={cn(
@@ -235,18 +287,14 @@ export function MetricsEditor({ selectedPlatforms, metrics, onChange }: Props) {
       )}
 
       {selectedPlatforms.includes('trustpilot') && (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-[1fr,120px] gap-4">
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
-              Rating (1-5)
+              Rating
             </label>
-            <input
-              type="number"
-              min="1"
-              max="5"
-              value={metrics.rating}
-              onChange={(e) => onChange('rating', parseInt(e.target.value) || 5)}
-              className="w-full h-9 px-3 rounded-md border border-gray-200 bg-white"
+            <StarRating 
+              value={metrics.rating || 4}
+              onChange={(rating) => onChange('rating', rating)}
             />
           </div>
           <div>
@@ -256,11 +304,11 @@ export function MetricsEditor({ selectedPlatforms, metrics, onChange }: Props) {
             <select
               value={metrics.location}
               onChange={(e) => onChange('location', e.target.value)}
-              className="w-full h-9 px-3 rounded-md border border-gray-200 bg-white"
+              className="w-full h-9 px-2 rounded-md border border-gray-200 bg-white text-sm"
             >
               {COUNTRY_CODES.map(country => (
                 <option key={country.code} value={country.code}>
-                  {country.name}
+                  {country.code}
                 </option>
               ))}
             </select>
@@ -279,7 +327,7 @@ export function MetricsEditor({ selectedPlatforms, metrics, onChange }: Props) {
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
-              Review Count
+              Reviews
             </label>
             <input
               type="number"
@@ -328,18 +376,6 @@ export function MetricsEditor({ selectedPlatforms, metrics, onChange }: Props) {
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
-              Sender Email
-            </label>
-            <input
-              type="email"
-              value={metrics.senderEmail}
-              onChange={(e) => onChange('senderEmail', e.target.value)}
-              className="w-full h-9 px-3 rounded-md border border-gray-200 bg-white"
-              placeholder="Enter sender email"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
               Subject Line
             </label>
             <input
@@ -358,18 +394,6 @@ export function MetricsEditor({ selectedPlatforms, metrics, onChange }: Props) {
               type="text"
               value={metrics.timeAgo}
               onChange={(e) => onChange('timeAgo', e.target.value)}
-              className="w-full h-9 px-3 rounded-md border border-gray-200 bg-white"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
-              Attachments
-            </label>
-            <input
-              type="number"
-              min="0"
-              value={metrics.attachments}
-              onChange={(e) => onChange('attachments', parseInt(e.target.value) || 0)}
               className="w-full h-9 px-3 rounded-md border border-gray-200 bg-white"
             />
           </div>

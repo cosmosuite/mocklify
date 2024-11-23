@@ -1,49 +1,22 @@
-import { Star, Flag, Reply, Archive, Trash2, MoreVertical, Tag, ArrowLeft, Mail, ChevronDown } from 'lucide-react';
-import type { GeneratedTestimonial } from '../types';
+import {
+  Star,
+  Flag,
+  Reply,
+  Archive,
+  Trash2,
+  MoreVertical,
+  ArrowLeft,
+  Mail,
+  ChevronDown,
+  Smile,
+} from "lucide-react";
+import type { GeneratedTestimonial } from "../types";
 
 interface Props {
   testimonial: GeneratedTestimonial;
 }
 
 export function EmailTestimonial({ testimonial }: Props) {
-  const formatTimestamp = (timeAgo: string) => {
-    const now = new Date();
-    const today = now.toLocaleDateString();
-    
-    if (timeAgo.includes('ago')) {
-      const value = parseInt(timeAgo);
-      const unit = timeAgo.includes('h') ? 'hours' : timeAgo.includes('m') ? 'minutes' : 'days';
-      const date = new Date();
-      
-      if (unit === 'hours') date.setHours(date.getHours() - value);
-      else if (unit === 'minutes') date.setMinutes(date.getMinutes() - value);
-      else date.setDate(date.getDate() - value);
-
-      if (date.toLocaleDateString() === today) {
-        return date.toLocaleTimeString('en-US', { 
-          hour: 'numeric', 
-          minute: '2-digit', 
-          hour12: true 
-        });
-      }
-      
-      if (date.getFullYear() === now.getFullYear()) {
-        return date.toLocaleDateString('en-US', { 
-          month: 'short',
-          day: 'numeric'
-        });
-      }
-      
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    }
-
-    return timeAgo;
-  };
-
   return (
     <div id={`email-${testimonial.id}`} className="bg-white rounded-xl overflow-hidden">
       {/* Gmail Mobile Header */}
@@ -58,9 +31,11 @@ export function EmailTestimonial({ testimonial }: Props) {
           <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">
             <Trash2 className="w-5 h-5 text-[#5F6368]" />
           </button>
-          <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 relative">
-            <Mail className="w-5 h-5 text-[#5F6368]" />
-            <div className="absolute top-2.5 right-2.5 w-2 h-2 bg-[#5F6368] rounded-full"></div>
+          <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">
+            <Smile className="w-5 h-5 text-[#5F6368]" />
+          </button>
+          <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">
+            <Reply className="w-5 h-5 text-[#5F6368]" />
           </button>
           <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">
             <MoreVertical className="w-5 h-5 text-[#5F6368]" />
@@ -94,10 +69,10 @@ export function EmailTestimonial({ testimonial }: Props) {
           <div className="min-w-0">
             <div className="flex items-center">
               <span className="font-medium text-[#202124] text-sm">
-                {testimonial.author.name}
+                {testimonial.metrics.senderName || testimonial.author.name}
               </span>
               <span className="text-[#5F6368] text-sm ml-2">
-                {formatTimestamp(testimonial.metrics.timeAgo)}
+                {testimonial.metrics.timeAgo}
               </span>
               {testimonial.metrics.important && (
                 <div className="w-4 h-4 ml-2">
@@ -133,34 +108,14 @@ export function EmailTestimonial({ testimonial }: Props) {
         ))}
       </div>
 
-      {/* Attachments */}
-      {testimonial.metrics.attachments > 0 && (
-        <div className="px-4 py-3 border-t border-gray-100">
-          <div className="text-sm font-medium text-[#5F6368] mb-2">
-            {testimonial.metrics.attachments} attachment{testimonial.metrics.attachments > 1 ? 's' : ''}
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {Array.from({ length: testimonial.metrics.attachments }).map((_, index) => (
-              <div
-                key={index}
-                className="relative bg-[#F6F8FC] rounded-lg overflow-hidden aspect-[4/3] p-3 flex flex-col justify-between"
-              >
-                <div className="w-8 h-8 rounded-sm bg-[#E8F0FE]" />
-                <div className="text-xs font-medium text-[#5F6368] mt-2">
-                  Attachment {index + 1}.jpg
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Bottom Actions */}
-      <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between">
-        <button className="h-9 px-6 bg-[#1A73E8] text-white text-sm font-medium rounded-full hover:bg-[#1557B0] transition-colors">
+      <div className="px-4 py-3 border-t border-gray-100 grid grid-cols-2 gap-2">
+        <button className="h-9 bg-[#1A73E8] text-white text-sm font-medium rounded-lg hover:bg-[#1557B0] transition-colors flex items-center justify-center">
+          <Reply className="w-4 h-4 mr-2" />
           Reply
         </button>
-        <button className="h-9 px-6 bg-[#F6F8FC] text-[#1A73E8] text-sm font-medium rounded-full hover:bg-[#E8F0FE] transition-colors">
+        <button className="h-9 bg-[#F6F8FC] text-[#1A73E8] text-sm font-medium rounded-lg hover:bg-[#E8F0FE] transition-colors flex items-center justify-center">
+          <Reply className="w-4 h-4 mr-2 transform rotate-180 scale-y-[-1]" />
           Forward
         </button>
       </div>

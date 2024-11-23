@@ -19,6 +19,27 @@ export function TrustpilotReview({ testimonial }: Props) {
     return colors[Math.floor(Math.random() * colors.length)];
   };
 
+  const renderStars = () => {
+    return (
+      <div className="flex h-6 space-x-0.5">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <div 
+            key={star}
+            className={`h-full aspect-square ${star <= testimonial.metrics.rating ? 'bg-[#06b57a]' : 'bg-[#dcdce6]'}`}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-full w-full text-white"
+              fill="currentColor"
+            >
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+            </svg>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div id={`trustpilot-${testimonial.id}`} className="bg-white rounded-lg border border-gray-200">
       <article className="divide-y divide-gray-200">
@@ -62,11 +83,7 @@ export function TrustpilotReview({ testimonial }: Props) {
         <div className="p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-4">
-              <img 
-                src={`https://cdn.trustpilot.net/brand-assets/4.1.0/stars/stars-${testimonial.metrics.rating}.svg`}
-                alt={`Rated ${testimonial.metrics.rating} out of 5 stars`}
-                className="h-6"
-              />
+              {renderStars()}
               {testimonial.author.isVerified && (
                 <div className="flex items-center space-x-1" style={{ color: '#6b6a66' }}>
                   <svg 
@@ -111,7 +128,7 @@ export function TrustpilotReview({ testimonial }: Props) {
         {/* Actions */}
         <div className="px-4 py-3 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <button className="flex items-center space-x-1 text-gray-500 hover:text-gray-700">
+            <button className="flex items-center space-x-1 text-gray-500 hover:text-[#06b57a]">
               <ThumbsUp size={14} />
               <span className="text-sm">Useful</span>
               {testimonial.metrics.usefulCount && testimonial.metrics.usefulCount > 0 && (
@@ -120,12 +137,12 @@ export function TrustpilotReview({ testimonial }: Props) {
                 </span>
               )}
             </button>
-            <button className="flex items-center space-x-1 text-gray-500 hover:text-gray-700">
+            <button className="flex items-center space-x-1 text-gray-500 hover:text-[#06b57a]">
               <Share size={14} />
               <span className="text-sm">Share</span>
             </button>
           </div>
-          <button className="text-gray-500 hover:text-gray-700">
+          <button className="text-gray-500 hover:text-[#06b57a]">
             <Flag size={14} />
           </button>
         </div>

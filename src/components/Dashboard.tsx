@@ -1,17 +1,29 @@
 import { MessageSquareQuote, ArrowRight, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export function Dashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleNavigate = (path: string) => {
     navigate(`/${path}`);
   };
 
+  // Get first name from user's name or email
+  const getFirstName = () => {
+    if (user?.user_metadata?.name) {
+      return user.user_metadata.name.split(' ')[0];
+    }
+    return 'There';
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-[1200px] mx-auto px-6 py-8">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-8">Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-[#0F0F0F] mb-8">
+          Hey {getFirstName()} 👋
+        </h1>
         
         <div className="grid gap-6 md:grid-cols-2">
           {/* Testimonial Generator Card */}
@@ -20,15 +32,24 @@ export function Dashboard() {
             className="text-left bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2"
           >
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-gray-100 rounded-lg">
-                <MessageSquareQuote className="w-5 h-5 text-gray-700" />
+              <div className="p-2 bg-[#0F0F0F] rounded-lg">
+                <MessageSquareQuote className="w-5 h-5 text-[#CCFC7E]" />
               </div>
               <div className="p-1.5 text-gray-500 hover:text-gray-900 rounded-full">
                 <ArrowRight className="w-4 h-4" />
               </div>
             </div>
+
+            {/* Testimonial Thumbnail */}
+            <div className="mb-6 bg-gray-100 rounded-lg overflow-hidden">
+              <div className="relative aspect-video">
+                <div className="absolute inset-0 p-3">
+                  <div className="h-full bg-gray-200/80 backdrop-blur rounded-lg"></div>
+                </div>
+              </div>
+            </div>
             
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">
+            <h2 className="text-lg font-semibold text-[#0F0F0F] mb-2">
               Testimonial Generator
             </h2>
             
@@ -55,15 +76,24 @@ export function Dashboard() {
             className="text-left bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2"
           >
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-gray-100 rounded-lg w-fit">
-                <Bell className="w-5 h-5 text-gray-700" />
+              <div className="p-2 bg-[#0F0F0F] rounded-lg w-fit">
+                <Bell className="w-5 h-5 text-[#CCFC7E]" />
               </div>
               <div className="p-1.5 text-gray-500 hover:text-gray-900 rounded-full">
                 <ArrowRight className="w-4 h-4" />
               </div>
             </div>
+
+            {/* Payment Notification Thumbnail */}
+            <div className="mb-6 bg-gray-100 rounded-lg overflow-hidden">
+              <div className="relative aspect-video">
+                <div className="absolute inset-0 p-3">
+                  <div className="h-full bg-gray-200/80 backdrop-blur rounded-lg"></div>
+                </div>
+              </div>
+            </div>
             
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">
+            <h2 className="text-lg font-semibold text-[#0F0F0F] mb-2">
               Payment Notification Generator
             </h2>
             

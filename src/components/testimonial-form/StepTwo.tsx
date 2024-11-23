@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
-import type { Platform, SocialMetrics } from '../../types';
-import { MetricsEditor } from './MetricsEditor';
 import { cn } from '../../lib/utils';
+import type { Platform, SocialMetrics } from '../../types';
+import { MetricsEditor } from './metrics-editor';
 
 interface Props {
   selectedPlatforms: Platform[];
@@ -10,7 +10,7 @@ interface Props {
   isLoading?: boolean;
   onMetricsChange: (field: keyof SocialMetrics, value: any) => void;
   onBack: () => void;
-  onSubmit: () => void;
+  onSubmit: (e: React.FormEvent) => void;
 }
 
 export function StepTwo({
@@ -21,7 +21,6 @@ export function StepTwo({
   onBack,
   onSubmit
 }: Props) {
-  // Only keep one platform open at a time
   const [openPlatform, setOpenPlatform] = useState<Platform | null>(
     selectedPlatforms[0] || null
   );
@@ -30,20 +29,25 @@ export function StepTwo({
     setOpenPlatform(current => current === platform ? null : platform);
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(e);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Individual Platform Metrics */}
       <div className="space-y-4">
         {selectedPlatforms.map((platform) => (
-          <div key={platform} className="border border-gray-200 rounded-lg overflow-hidden">
+          <div key={platform} className="border border-[#2F2F2F] rounded-lg overflow-hidden">
             <button
               type="button"
               onClick={() => togglePlatform(platform)}
               className={cn(
                 "w-full flex items-center justify-between p-3 text-sm font-medium transition-colors",
                 openPlatform === platform 
-                  ? "bg-gray-900 text-white"
-                  : "bg-gray-50 text-gray-900 hover:bg-gray-100"
+                  ? "bg-[#CCFC7E] text-black"
+                  : "bg-[#1F1F1F] text-white hover:bg-[#2F2F2F]"
               )}
             >
               <span className="capitalize">{platform} Metrics</span>
@@ -55,7 +59,7 @@ export function StepTwo({
             </button>
 
             {openPlatform === platform && (
-              <div className="p-4 bg-white">
+              <div className="p-4 bg-[#1F1F1F]">
                 <MetricsEditor 
                   selectedPlatforms={[platform]}
                   metrics={metrics}
@@ -71,15 +75,15 @@ export function StepTwo({
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 bg-gray-100 text-gray-900 h-11 px-8 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 transition-colors"
+          className="flex-1 bg-[#1F1F1F] text-white h-11 px-8 rounded-lg font-medium hover:bg-[#2F2F2F] focus:outline-none focus:ring-2 focus:ring-[#CCFC7E] focus:ring-offset-2 focus:ring-offset-[#0F0F0F] transition-colors"
         >
           Back
         </button>
         <button
           type="submit"
-          onClick={onSubmit}
+          onClick={handleSubmit}
           disabled={isLoading}
-          className="flex-1 bg-gray-900 text-white h-11 px-8 rounded-lg font-medium hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+          className="flex-1 bg-[#CCFC7E] text-black h-11 px-8 rounded-lg font-medium hover:bg-[#B8E86E] focus:outline-none focus:ring-2 focus:ring-[#CCFC7E] focus:ring-offset-2 focus:ring-offset-[#0F0F0F] disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
         >
           {isLoading ? (
             <span className="flex items-center justify-center">

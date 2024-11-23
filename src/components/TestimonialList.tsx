@@ -1,23 +1,26 @@
 import { useState } from 'react';
-import { Download, Loader2, Pencil, Archive } from 'lucide-react';
-import type { GeneratedTestimonial, Platform } from '../types';
+import { Download, Loader2, Pencil } from 'lucide-react';
+import type { GeneratedTestimonial, Platform, SocialMetrics } from '../types';
 import { FacebookComment } from './FacebookComment';
 import { Tweet } from './Tweet';
 import { TrustpilotReview } from './TrustpilotReview';
 import { EmailTestimonial } from './EmailTestimonial';
 import { downloadSingleTestimonial, downloadAllTestimonials } from '../utils/download';
 import { cn } from '../lib/utils';
+import { MetricsEditor } from './testimonial-form/metrics-editor';
 
 interface Props {
   testimonials: GeneratedTestimonial[];
   onEdit: (id: string) => void;
+  onMetricsUpdate: (id: string, metrics: SocialMetrics) => void;
   isLoading?: boolean;
 }
 
-export function TestimonialList({ testimonials, onEdit, isLoading }: Props) {
+export function TestimonialList({ testimonials, onEdit, onMetricsUpdate, isLoading }: Props) {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const handleDownload = async (testimonial: GeneratedTestimonial) => {
     setError(null);
@@ -43,6 +46,18 @@ export function TestimonialList({ testimonials, onEdit, isLoading }: Props) {
     } finally {
       setIsDownloadingAll(false);
     }
+  };
+
+  const handleMetricsChange = (testimonialId: string, field: keyof SocialMetrics, value: any) => {
+    const testimonial = testimonials.find(t => t.id === testimonialId);
+    if (!testimonial) return;
+
+    const updatedMetrics = {
+      ...testimonial.metrics,
+      [field]: value
+    };
+
+    onMetricsUpdate(testimonialId, updatedMetrics);
   };
 
   const renderTestimonial = (testimonial: GeneratedTestimonial) => {
@@ -74,12 +89,12 @@ export function TestimonialList({ testimonials, onEdit, isLoading }: Props) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
       <div className="px-6 py-4 flex items-center justify-between border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">Generated Testimonials</h2>
+        <h2 className="text-lg font-semibold text-[#0F0F0F]">Generated Testimonials</h2>
         {testimonials.length > 0 && (
           <button
             onClick={handleDownloadAll}
             disabled={isDownloadingAll}
-            className="inline-flex items-center space-x-1 px-2.5 py-1.5 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center space-x-1 px-2.5 py-1.5 text-sm font-medium text-[#0F0F0F] hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Download all testimonials"
           >
             {isDownloadingAll ? (
@@ -89,7 +104,7 @@ export function TestimonialList({ testimonials, onEdit, isLoading }: Props) {
               </>
             ) : (
               <>
-                <Archive size={16} />
+                <Download size={16} />
                 <span>Download All</span>
               </>
             )}
@@ -99,13 +114,13 @@ export function TestimonialList({ testimonials, onEdit, isLoading }: Props) {
 
       {error && (
         <div className="px-6 py-3 bg-red-50 border-b border-red-100">
-          <p className="text-sm text-red-600">{error}</p>
+          <p className="text-sm text-[#0F0F0F]">{error}</p>
         </div>
       )}
 
       <div className="p-6">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+          <div className="flex flex-col items-center justify-center py-12 text-[#0F0F0F]">
             <Loader2 size={24} className="animate-spin mb-3" />
             <p className="text-sm">Generating your testimonial...</p>
           </div>
@@ -118,7 +133,7 @@ export function TestimonialList({ testimonials, onEdit, isLoading }: Props) {
                   <div className={cn('platform-badge', `platform-badge-${platform}`)}>
                     {platform}
                   </div>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-[#0F0F0F]">
                     {groupedTestimonials[platform].length} testimonial{groupedTestimonials[platform].length !== 1 ? 's' : ''}
                   </span>
                 </div>
@@ -126,39 +141,52 @@ export function TestimonialList({ testimonials, onEdit, isLoading }: Props) {
                 {/* Platform Testimonials */}
                 <div className="space-y-6">
                   {groupedTestimonials[platform].map((testimonial) => (
-                    <div key={testimonial.id} className="testimonial-card">
-                      {/* Actions */}
-                      <div className="testimonial-card-header">
-                        <span className="text-sm text-gray-500">
-                          {new Date(testimonial.timestamp).toLocaleDateString()}
-                        </span>
-                        <div className="flex items-center space-x-1">
-                          <button
-                            onClick={() => onEdit(testimonial.id)}
-                            className="action-button"
-                            title="Edit testimonial"
-                          >
-                            <Pencil size={14} />
-                          </button>
-                          <button
-                            onClick={() => handleDownload(testimonial)}
-                            disabled={!!downloadingId}
-                            className="action-button"
-                            title="Download as image"
-                          >
-                            {downloadingId === testimonial.id ? (
-                              <Loader2 size={14} className="animate-spin" />
-                            ) : (
-                              <Download size={14} />
-                            )}
-                          </button>
+                    <div key={testimonial.id}>
+                      <div className="testimonial-card">
+                        {/* Actions */}
+                        <div className="testimonial-card-header">
+                          <span className="text-sm text-[#0F0F0F]">
+                            {new Date(testimonial.timestamp).toLocaleDateString()}
+                          </span>
+                          <div className="flex items-center space-x-1">
+                            <button
+                              onClick={() => setEditingId(editingId === testimonial.id ? null : testimonial.id)}
+                              className="action-button"
+                              title="Edit metrics"
+                            >
+                              <Pencil size={14} />
+                            </button>
+                            <button
+                              onClick={() => handleDownload(testimonial)}
+                              disabled={!!downloadingId}
+                              className="action-button"
+                              title="Download as image"
+                            >
+                              {downloadingId === testimonial.id ? (
+                                <Loader2 size={14} className="animate-spin" />
+                              ) : (
+                                <Download size={14} />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="testimonial-card-content p-0">
+                          {renderTestimonial(testimonial)}
                         </div>
                       </div>
 
-                      {/* Content - No extra padding/margin that could affect Tweet layout */}
-                      <div className="testimonial-card-content p-0">
-                        {renderTestimonial(testimonial)}
-                      </div>
+                      {/* Metrics Editor */}
+                      {editingId === testimonial.id && (
+                        <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                          <MetricsEditor
+                            selectedPlatforms={[testimonial.platform]}
+                            metrics={testimonial.metrics}
+                            onChange={(field, value) => handleMetricsChange(testimonial.id, field, value)}
+                          />
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -167,7 +195,7 @@ export function TestimonialList({ testimonials, onEdit, isLoading }: Props) {
           </div>
         ) : (
           <div className="py-12 text-center">
-            <p className="text-gray-500">
+            <p className="text-[#0F0F0F]">
               Generated testimonials will appear here
             </p>
           </div>

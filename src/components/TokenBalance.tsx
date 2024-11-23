@@ -55,7 +55,7 @@ export function TokenBalance({ isExpanded = true }: Props) {
 
   if (!isExpanded) {
     return (
-      <div className="px-2 py-3 flex flex-col items-center gap-1 text-gray-500">
+      <div className="px-2 py-3 flex flex-col items-center gap-1 text-gray-400">
         <Coins size={16} />
         <span className="text-xs font-medium">
           {isLoading ? (
@@ -69,11 +69,11 @@ export function TokenBalance({ isExpanded = true }: Props) {
   }
 
   return (
-    <div className="border border-gray-200 bg-white/50 rounded-lg p-3">
+    <div className="border border-[#1F1F1F] bg-[#161616] rounded-lg p-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center">
-          <Coins size={18} className="text-gray-500 mr-2" />
-          <span className="text-sm font-medium text-gray-700">
+          <Coins size={18} className="text-gray-400 mr-2" />
+          <span className="text-sm font-medium text-gray-300">
             {isLoading ? (
               <Loader2 size={14} className="animate-spin" />
             ) : (
@@ -88,7 +88,7 @@ export function TokenBalance({ isExpanded = true }: Props) {
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="p-1 hover:bg-gray-100 rounded-md transition-colors text-gray-500"
+          className="p-1 hover:bg-[#252525] rounded-md transition-colors text-gray-400"
           title="Buy more credits"
         >
           <Plus size={18} />

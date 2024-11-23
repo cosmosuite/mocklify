@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   LayoutDashboard,
   MessageSquareQuote,
@@ -9,8 +9,7 @@ import {
   Bell,
   ChevronDown,
   ChevronUp,
-  Loader2,
-  Menu
+  Loader2
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '../lib/utils';
@@ -20,13 +19,14 @@ import { TokenBalance } from './TokenBalance';
 interface Props {
   currentView: 'dashboard' | 'generator' | 'history' | 'settings' | 'payment-screenshot';
   onViewChange: (view: 'dashboard' | 'generator' | 'history' | 'settings' | 'payment-screenshot') => void;
+  forceExpanded?: boolean;
 }
 
-export function Sidebar({ currentView, onViewChange }: Props): JSX.Element {
+export function Sidebar({ currentView, onViewChange, forceExpanded = false }: Props): JSX.Element {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(!forceExpanded);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     social: true,
@@ -81,30 +81,35 @@ export function Sidebar({ currentView, onViewChange }: Props): JSX.Element {
 
   useEffect(() => {
     function handleMouseEnter() {
-      if (isCollapsed) {
+      if (!forceExpanded && isCollapsed) {
         setIsCollapsed(false);
       }
     }
 
     function handleMouseLeave() {
-      if (!isCollapsed) {
+      if (!forceExpanded && !isCollapsed) {
         setIsCollapsed(true);
       }
     }
 
     const sidebar = sidebarRef.current;
-    if (sidebar) {
+    if (sidebar && !forceExpanded) {
       sidebar.addEventListener('mouseenter', handleMouseEnter);
       sidebar.addEventListener('mouseleave', handleMouseLeave);
     }
 
     return () => {
-      if (sidebar) {
+      if (sidebar && !forceExpanded) {
         sidebar.removeEventListener('mouseenter', handleMouseEnter);
         sidebar.removeEventListener('mouseleave', handleMouseLeave);
       }
     };
-  }, [isCollapsed]);
+  }, [isCollapsed, forceExpanded]);
+
+  // Update collapse state when forceExpanded changes
+  useEffect(() => {
+    setIsCollapsed(!forceExpanded);
+  }, [forceExpanded]);
 
   // Update currentView based on location
   useEffect(() => {
@@ -118,23 +123,30 @@ export function Sidebar({ currentView, onViewChange }: Props): JSX.Element {
     <div 
       ref={sidebarRef}
       className={cn(
-        "fixed left-0 top-0 h-screen bg-gray-50 border-r border-gray-200 z-50 transition-all duration-300",
+        "fixed left-0 top-0 h-screen bg-[#0F0F0F] border-r border-[#1F1F1F] z-50 transition-all duration-300",
         isCollapsed ? "w-16" : "w-64"
       )}
     >
       {/* Logo Section */}
       <div className={cn(
-        "h-16 px-4 flex items-center border-b border-gray-200",
-        isCollapsed ? "justify-center" : "justify-between"
+        "h-16 px-4 flex items-center border-b border-[#1F1F1F]",
+        isCollapsed ? "justify-center" : "justify-start"
       )}>
-        {!isCollapsed && (
+        {isCollapsed ? (
           <img 
-            src="https://storage.googleapis.com/msgsndr/0iO3mS8O2ALa5vmXwP3d/media/674200b17fc15f51f4219724.png" 
+            src="https://storage.googleapis.com/msgsndr/0iO3mS8O2ALa5vmXwP3d/media/67420a637776d5779a90aebe.png"
             alt="Mocklify"
-            className="h-8"
+            className="h-8 w-auto"
           />
+        ) : (
+          <div className="flex items-center">
+            <img 
+              src="https://storage.googleapis.com/msgsndr/0iO3mS8O2ALa5vmXwP3d/media/674200b17fc15f51f4219724.png"
+              alt="Mocklify"
+              className="h-8 w-auto"
+            />
+          </div>
         )}
-        <Menu className="w-5 h-5 text-gray-500" />
       </div>
 
       {/* Main Content Area */}
@@ -150,8 +162,8 @@ export function Sidebar({ currentView, onViewChange }: Props): JSX.Element {
                     "w-full flex items-center rounded-lg transition-colors",
                     isCollapsed ? "px-3 py-2.5 justify-center" : "px-4 py-2",
                     currentView === item.id
-                      ? "bg-gray-900 text-white"
-                      : "text-gray-600 hover:bg-gray-200/50 hover:text-gray-900"
+                      ? "bg-[#CCFC7E] text-black"
+                      : "text-gray-400 hover:bg-gray-800 hover:text-white"
                   )}
                 >
                   <item.icon size={18} />
@@ -166,7 +178,7 @@ export function Sidebar({ currentView, onViewChange }: Props): JSX.Element {
             {!isCollapsed && (
               <button
                 onClick={() => toggleSection('social')}
-                className="w-full flex items-center justify-between px-3 mb-2 text-xs font-medium text-gray-400 uppercase hover:text-gray-600"
+                className="w-full flex items-center justify-between px-3 mb-2 text-xs font-medium text-gray-400 uppercase hover:text-gray-300"
               >
                 <span>Social Proof</span>
                 {expandedSections.social ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -182,8 +194,8 @@ export function Sidebar({ currentView, onViewChange }: Props): JSX.Element {
                         "w-full flex items-center rounded-lg transition-colors",
                         isCollapsed ? "px-3 py-2.5 justify-center" : "px-4 py-2",
                         currentView === item.id
-                          ? "bg-gray-900 text-white"
-                          : "text-gray-600 hover:bg-gray-200/50 hover:text-gray-900"
+                          ? "bg-[#CCFC7E] text-black"
+                          : "text-gray-400 hover:bg-gray-800 hover:text-white"
                       )}
                     >
                       <item.icon size={18} />
@@ -200,7 +212,7 @@ export function Sidebar({ currentView, onViewChange }: Props): JSX.Element {
             {!isCollapsed && (
               <button
                 onClick={() => toggleSection('payments')}
-                className="w-full flex items-center justify-between px-3 mb-2 text-xs font-medium text-gray-400 uppercase hover:text-gray-600"
+                className="w-full flex items-center justify-between px-3 mb-2 text-xs font-medium text-gray-400 uppercase hover:text-gray-300"
               >
                 <span>Payment Proof</span>
                 {expandedSections.payments ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -216,8 +228,8 @@ export function Sidebar({ currentView, onViewChange }: Props): JSX.Element {
                         "w-full flex items-center rounded-lg transition-colors",
                         isCollapsed ? "px-3 py-2.5 justify-center" : "px-4 py-2",
                         currentView === item.id
-                          ? "bg-gray-900 text-white"
-                          : "text-gray-600 hover:bg-gray-200/50 hover:text-gray-900"
+                          ? "bg-[#CCFC7E] text-black"
+                          : "text-gray-400 hover:bg-gray-800 hover:text-white"
                       )}
                     >
                       <item.icon size={18} />
@@ -245,8 +257,8 @@ export function Sidebar({ currentView, onViewChange }: Props): JSX.Element {
                       "w-full flex items-center rounded-lg transition-colors",
                       isCollapsed ? "px-3 py-2.5 justify-center" : "px-4 py-2",
                       currentView === item.id
-                        ? "bg-gray-900 text-white"
-                        : "text-gray-600 hover:bg-gray-200/50 hover:text-gray-900"
+                        ? "bg-[#CCFC7E] text-black"
+                        : "text-gray-400 hover:bg-gray-800 hover:text-white"
                     )}
                   >
                     <item.icon size={18} />
@@ -259,7 +271,7 @@ export function Sidebar({ currentView, onViewChange }: Props): JSX.Element {
         </div>
 
         {/* Bottom Section */}
-        <div className="flex-shrink-0 p-2 border-t border-gray-200">
+        <div className="flex-shrink-0 p-2 border-t border-[#1F1F1F]">
           {isCollapsed ? (
             <TokenBalance isExpanded={false} />
           ) : (
@@ -270,7 +282,7 @@ export function Sidebar({ currentView, onViewChange }: Props): JSX.Element {
             onClick={handleLogout}
             disabled={isLoggingOut}
             className={cn(
-              "w-full flex items-center rounded-lg text-gray-600 hover:bg-gray-200/50 hover:text-gray-900 transition-colors mt-2",
+              "w-full flex items-center rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors mt-2",
               isCollapsed ? "px-3 py-2.5 justify-center" : "px-4 py-2"
             )}
             title={isCollapsed ? "Logout" : undefined}

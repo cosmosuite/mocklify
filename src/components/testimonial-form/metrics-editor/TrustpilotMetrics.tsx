@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { cn } from '../../../lib/utils';
 import type { SocialMetrics } from '../../../types';
 
 interface Props {
@@ -54,7 +55,7 @@ export function TrustpilotMetrics({ metrics, onChange }: Props) {
   return (
     <div className="grid grid-cols-[1fr,120px] gap-4">
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">
+        <label className="block text-xs font-medium text-white mb-1">
           Rating
         </label>
         <StarRating 
@@ -63,13 +64,18 @@ export function TrustpilotMetrics({ metrics, onChange }: Props) {
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">
+        <label className="block text-xs font-medium text-white mb-1">
           Location
         </label>
         <select
           value={metrics.location}
           onChange={(e) => onChange('location', e.target.value)}
-          className="w-full h-9 px-2 rounded-md border border-gray-200 bg-white text-sm"
+          className={cn(
+            "w-full h-9 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white",
+            "outline-none transition-colors appearance-none",
+            "hover:border-[#3F3F3F] focus:border-[#CCFC7E] focus:ring-1 focus:ring-[#CCFC7E]",
+            "border-[#2F2F2F]"
+          )}
         >
           {COUNTRY_CODES.map(country => (
             <option key={country.code} value={country.code}>
@@ -79,7 +85,7 @@ export function TrustpilotMetrics({ metrics, onChange }: Props) {
         </select>
       </div>
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">
+        <label className="block text-xs font-medium text-white mb-1">
           Useful Count
         </label>
         <input
@@ -87,11 +93,16 @@ export function TrustpilotMetrics({ metrics, onChange }: Props) {
           min="0"
           value={metrics.usefulCount}
           onChange={(e) => onChange('usefulCount', parseInt(e.target.value) || 0)}
-          className="w-full h-9 px-3 rounded-md border border-gray-200 bg-white"
+          className={cn(
+            "w-full h-9 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white placeholder:text-gray-500",
+            "outline-none transition-colors",
+            "hover:border-[#3F3F3F] focus:border-[#CCFC7E] focus:ring-1 focus:ring-[#CCFC7E]",
+            "border-[#2F2F2F]"
+          )}
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">
+        <label className="block text-xs font-medium text-white mb-1">
           Reviews
         </label>
         <input
@@ -99,11 +110,16 @@ export function TrustpilotMetrics({ metrics, onChange }: Props) {
           min="1"
           value={metrics.reviewCount}
           onChange={(e) => onChange('reviewCount', parseInt(e.target.value) || 1)}
-          className="w-full h-9 px-3 rounded-md border border-gray-200 bg-white"
+          className={cn(
+            "w-full h-9 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white placeholder:text-gray-500",
+            "outline-none transition-colors",
+            "hover:border-[#3F3F3F] focus:border-[#CCFC7E] focus:ring-1 focus:ring-[#CCFC7E]",
+            "border-[#2F2F2F]"
+          )}
         />
       </div>
       <div className="col-span-2">
-        <label className="block text-xs font-medium text-gray-600 mb-1">
+        <label className="block text-xs font-medium text-white mb-1">
           Date of Experience
         </label>
         <input
@@ -119,7 +135,12 @@ export function TrustpilotMetrics({ metrics, onChange }: Props) {
             });
             onChange('dateOfExperience', formatted);
           }}
-          className="w-full h-9 px-3 rounded-md border border-gray-200 bg-white"
+          className={cn(
+            "w-full h-9 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white",
+            "outline-none transition-colors",
+            "hover:border-[#3F3F3F] focus:border-[#CCFC7E] focus:ring-1 focus:ring-[#CCFC7E]",
+            "border-[#2F2F2F]"
+          )}
         />
       </div>
     </div>

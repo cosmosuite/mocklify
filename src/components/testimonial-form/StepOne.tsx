@@ -38,7 +38,7 @@ export function StepOne({
   onNext
 }: Props) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Platform Selection */}
       <PlatformSelector 
         selectedPlatforms={selectedPlatforms}
@@ -48,19 +48,32 @@ export function StepOne({
       />
 
       {/* Product Information Tabs */}
-      <div className="space-y-2">
+      <div className="space-y-4">
+        <label className="text-sm font-medium text-white">
+          Product Information
+        </label>
         <Tabs 
           defaultValue="url" 
           value={activeTab}
           onValueChange={(value) => onTabChange(value as 'url' | 'description')}
           className="w-full"
         >
-          <TabsList className="w-full">
-            <TabsTrigger value="url" className="flex-1">Website URL</TabsTrigger>
-            <TabsTrigger value="description" className="flex-1">Description</TabsTrigger>
+          <TabsList className="w-full bg-[#1F1F1F] p-1">
+            <TabsTrigger 
+              value="url" 
+              className="flex-1 text-sm text-gray-400 data-[state=active]:bg-[#CCFC7E] data-[state=active]:text-black"
+            >
+              Website URL
+            </TabsTrigger>
+            <TabsTrigger 
+              value="description" 
+              className="flex-1 text-sm text-gray-400 data-[state=active]:bg-[#CCFC7E] data-[state=active]:text-black"
+            >
+              Description
+            </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="url">
+          <TabsContent value="url" className="mt-4">
             <div className="space-y-2">
               <input
                 type="url"
@@ -68,36 +81,43 @@ export function StepOne({
                 onChange={(e) => onWebsiteUrlChange(e.target.value)}
                 placeholder="Enter your website URL (e.g., https://example.com)"
                 className={cn(
-                  "w-full h-11 rounded-lg border bg-white px-3 py-2 text-sm outline-none hover:border-gray-300 focus:border-gray-300 focus:ring-2 focus:ring-gray-100",
-                  urlError ? "border-red-300" : "border-gray-200"
+                  "w-full h-12 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white placeholder:text-gray-500",
+                  "outline-none transition-colors",
+                  "hover:border-[#3F3F3F] focus:border-[#CCFC7E] focus:ring-1 focus:ring-[#CCFC7E]",
+                  urlError ? "border-red-500" : "border-[#2F2F2F]"
                 )}
               />
               {urlError && (
-                <div className="flex items-center space-x-2 text-red-500 text-sm">
+                <div className="flex items-center space-x-2 text-red-400 text-sm">
                   <AlertCircle size={16} />
                   <span>{urlError}</span>
                 </div>
               )}
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-400">
                 We'll analyze your website to generate relevant testimonials.
               </p>
             </div>
           </TabsContent>
           
-          <TabsContent value="description">
+          <TabsContent value="description" className="mt-4">
             <textarea
               value={productInfo}
               onChange={(e) => onProductInfoChange(e.target.value)}
               placeholder="Describe your product or service in detail..."
-              className="w-full h-32 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none hover:border-gray-300 focus:border-gray-300 focus:ring-2 focus:ring-gray-100 resize-none"
+              className={cn(
+                "w-full h-32 rounded-lg border bg-[#1F1F1F] px-4 py-3 text-sm text-white placeholder:text-gray-500",
+                "outline-none transition-colors resize-none",
+                "hover:border-[#3F3F3F] focus:border-[#CCFC7E] focus:ring-1 focus:ring-[#CCFC7E]",
+                "border-[#2F2F2F]"
+              )}
             />
           </TabsContent>
         </Tabs>
       </div>
 
       {/* Tone Selection */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">
+      <div className="space-y-4">
+        <label className="text-sm font-medium text-white">
           Testimonial Tone
         </label>
         <div className="grid grid-cols-3 gap-4">
@@ -105,10 +125,10 @@ export function StepOne({
             <label
               key={t}
               className={cn(
-                "flex items-center justify-center px-4 py-2 rounded-lg border cursor-pointer transition-colors",
+                "flex items-center justify-center h-12 px-4 rounded-lg border-2 cursor-pointer transition-colors",
                 tone === t
-                  ? "bg-gray-900 text-white border-gray-900"
-                  : "border-gray-200 hover:border-gray-300"
+                  ? "bg-[#1F1F1F] border-[#CCFC7E] text-[#CCFC7E]"
+                  : "border-[#2F2F2F] text-gray-400 hover:border-[#3F3F3F]"
               )}
             >
               <input
@@ -127,7 +147,12 @@ export function StepOne({
       <button
         type="button"
         onClick={onNext}
-        className="w-full bg-gray-900 text-white h-11 px-8 rounded-lg font-medium hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        className={cn(
+          "w-full h-12 rounded-lg font-medium transition-colors",
+          "bg-[#CCFC7E] text-black hover:bg-[#B8E86E]",
+          "focus:outline-none focus:ring-2 focus:ring-[#CCFC7E] focus:ring-offset-2 focus:ring-offset-[#0F0F0F]",
+          "disabled:opacity-50 disabled:cursor-not-allowed"
+        )}
       >
         Next Step
       </button>

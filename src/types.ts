@@ -19,11 +19,9 @@ export interface SocialMetrics {
   reviewCount?: number;
   // Email specific metrics
   subject?: string;
-  attachments?: number;
   starred?: boolean;
   important?: boolean;
   senderName?: string;
-  senderEmail?: string;
 }
 
 export interface TestimonialForm {
@@ -43,10 +41,8 @@ export interface GeneratedTestimonial {
     handle?: string;
     avatar: string;
     isVerified?: boolean;
-    initials?: string;
     location?: string;
     reviewCount?: number;
-    email?: string;
   };
   timestamp: Date;
   metrics: SocialMetrics;

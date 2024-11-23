@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { cn } from '../../../lib/utils';
 import type { SocialMetrics, FacebookReaction } from '../../../types';
 
 interface Props {
@@ -69,7 +70,7 @@ export function FacebookMetrics({ metrics, onChange }: Props) {
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">
+          <label className="block text-xs font-medium text-white mb-1">
             Likes Count
           </label>
           <input
@@ -77,24 +78,34 @@ export function FacebookMetrics({ metrics, onChange }: Props) {
             min="0"
             value={metrics.likes}
             onChange={(e) => onChange('likes', parseInt(e.target.value) || 0)}
-            className="w-full h-9 px-3 rounded-md border border-gray-200 bg-white"
+            className={cn(
+              "w-full h-9 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white placeholder:text-gray-500",
+              "outline-none transition-colors",
+              "hover:border-[#3F3F3F] focus:border-[#CCFC7E] focus:ring-1 focus:ring-[#CCFC7E]",
+              "border-[#2F2F2F]"
+            )}
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">
+          <label className="block text-xs font-medium text-white mb-1">
             Time Ago (e.g., 2h, 1d)
           </label>
           <input
             type="text"
             value={metrics.timeAgo}
             onChange={(e) => onChange('timeAgo', e.target.value)}
-            className="w-full h-9 px-3 rounded-md border border-gray-200 bg-white"
+            className={cn(
+              "w-full h-9 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white placeholder:text-gray-500",
+              "outline-none transition-colors",
+              "hover:border-[#3F3F3F] focus:border-[#CCFC7E] focus:ring-1 focus:ring-[#CCFC7E]",
+              "border-[#2F2F2F]"
+            )}
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-2">
+        <label className="block text-xs font-medium text-white mb-2">
           Reactions (max 3)
         </label>
         <div className="flex flex-wrap gap-2">
@@ -108,26 +119,28 @@ export function FacebookMetrics({ metrics, onChange }: Props) {
                 type="button"
                 onClick={(e) => toggleReaction(e, value)}
                 disabled={isDisabled}
-                className={`
-                  flex items-center space-x-1.5 px-2 py-1.5 rounded-full border transition-all
-                  ${isSelected
-                    ? "border-blue-200 bg-blue-50 text-blue-700"
-                    : "border-gray-200 hover:border-gray-300 text-gray-700"
-                  }
-                  ${isDisabled && "opacity-40 cursor-not-allowed hover:border-gray-200"}
-                `}
+                className={cn(
+                  "flex items-center space-x-1.5 px-2 py-1.5 rounded-full border transition-all",
+                  isSelected
+                    ? "border-[#CCFC7E] bg-[#1F1F1F] text-[#CCFC7E]"
+                    : "border-[#2F2F2F] hover:border-[#3F3F3F] text-gray-400",
+                  isDisabled && "opacity-40 cursor-not-allowed hover:border-[#2F2F2F]"
+                )}
               >
                 <img 
                   src={icon}
                   alt={label}
-                  className={`w-5 h-5 object-contain transition-opacity ${isDisabled && "opacity-40"}`}
+                  className={cn(
+                    "w-5 h-5 object-contain transition-opacity",
+                    isDisabled && "opacity-40"
+                  )}
                 />
                 <span className="text-xs font-medium">{label}</span>
               </button>
             );
           })}
         </div>
-        <p className="mt-1.5 text-xs text-gray-500">
+        <p className="mt-1.5 text-xs text-gray-400">
           Click to toggle reactions. First reaction will be the primary one.
         </p>
       </div>

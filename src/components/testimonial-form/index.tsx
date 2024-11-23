@@ -18,7 +18,7 @@ const defaultMetrics: SocialMetrics = {
   reactions: ['like', 'love'],
   views: 1200,
   isVerified: false,
-  rating: 5,
+  rating: 4,
   usefulCount: 8,
   dateOfExperience: new Date().toLocaleDateString('en-US', {
     month: 'long',
@@ -28,11 +28,9 @@ const defaultMetrics: SocialMetrics = {
   location: 'US',
   reviewCount: 1,
   subject: 'Exceptional Experience with Your Product',
-  attachments: 0,
   starred: false,
   important: false,
-  senderName: 'John Smith',
-  senderEmail: 'john.smith@example.com'
+  senderName: 'John Smith'
 };
 
 export function TestimonialForm({ onSubmit, isLoading }: Props) {
@@ -53,19 +51,23 @@ export function TestimonialForm({ onSubmit, isLoading }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if ((!productInfo.trim() && !websiteUrl.trim()) || selectedPlatforms.length === 0) return;
-    
+    if ((!productInfo.trim() && !websiteUrl.trim()) || selectedPlatforms.length === 0) {
+      return;
+    }
+
     // Generate testimonials for each selected platform based on count
     for (const platform of selectedPlatforms) {
       const count = platformCounts[platform];
       for (let i = 0; i < count; i++) {
-        const form = {
+        const form: TestimonialFormType = {
           platform,
           productInfo: activeTab === 'url' ? websiteUrl : productInfo,
           tone,
           metrics: {
             ...metrics,
-            timeAgo: `${Math.floor(Math.random() * 24)}h` // Randomize time for multiple testimonials
+            timeAgo: platform === 'email' 
+              ? new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+              : `${Math.floor(Math.random() * 24)}h`
           }
         };
         
@@ -110,20 +112,20 @@ export function TestimonialForm({ onSubmit, isLoading }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+    <form onSubmit={handleSubmit} className="bg-[#0F0F0F] p-6 rounded-xl shadow-sm border border-[#1F1F1F]">
       {/* Progress Steps */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center w-full">
           <div className={cn(
             "w-8 h-8 rounded-full flex items-center justify-center font-medium",
-            step === 1 ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-500"
+            step === 1 ? "bg-[#CCFC7E] text-black" : "bg-[#1F1F1F] text-gray-400"
           )}>
             1
           </div>
-          <div className="flex-1 h-0.5 mx-2 bg-gray-200" />
+          <div className="flex-1 h-0.5 mx-2 bg-[#1F1F1F]" />
           <div className={cn(
             "w-8 h-8 rounded-full flex items-center justify-center font-medium",
-            step === 2 ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-500"
+            step === 2 ? "bg-[#CCFC7E] text-black" : "bg-[#1F1F1F] text-gray-400"
           )}>
             2
           </div>
