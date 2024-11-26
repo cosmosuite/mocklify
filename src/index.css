@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  @apply antialiased text-brand-black bg-brand-white;
+  @apply antialiased text-gray-900;
 }
 
 /* Custom Scrollbar Styles */
@@ -21,7 +21,7 @@ body {
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  @apply bg-brand-black/20 rounded-full hover:bg-brand-black/30 transition-colors;
+  @apply bg-gray-300 rounded-full hover:bg-gray-400 transition-colors;
 }
 
 /* Testimonial List Layout */
@@ -54,11 +54,11 @@ body {
 
 /* Platform-specific card styles */
 .testimonial-card {
-  @apply bg-brand-white rounded-lg border border-brand-black/10 overflow-hidden transition-shadow hover:shadow-md;
+  @apply bg-white rounded-lg border border-gray-200 overflow-hidden transition-shadow hover:shadow-md;
 }
 
 .testimonial-card-header {
-  @apply px-3 py-2 border-b border-brand-black/10 flex items-center justify-between;
+  @apply px-3 py-2 border-b border-gray-100 flex items-center justify-between;
 }
 
 .testimonial-card-content {
@@ -67,17 +67,26 @@ body {
 
 /* Platform badges */
 .platform-badge {
-  @apply px-2.5 py-1 rounded-full text-xs font-medium capitalize bg-brand-primary text-brand-black;
+  @apply px-2.5 py-1 rounded-full text-xs font-medium capitalize text-white;
 }
 
-.platform-badge-facebook,
-.platform-badge-twitter,
-.platform-badge-trustpilot,
+.platform-badge-facebook {
+  @apply bg-[#1877f2];
+}
+
+.platform-badge-twitter {
+  @apply bg-black;
+}
+
+.platform-badge-trustpilot {
+  @apply bg-[#00b67a];
+}
+
 .platform-badge-email {
-  @apply bg-brand-primary text-brand-black;
+  @apply bg-[#EA4335];
 }
 
 /* Action buttons */
 .action-button {
-  @apply p-1.5 text-brand-black/50 hover:text-brand-black rounded-full hover:bg-brand-primary/20 transition-colors;
+  @apply p-1.5 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-50 transition-colors;
 }

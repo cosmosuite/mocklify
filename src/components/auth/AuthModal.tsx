@@ -496,7 +496,7 @@ export function AuthModal({ onClose }: Props) {
             onClick={onClose}
             className="w-full text-center text-sm text-gray-500 hover:text-gray-900"
           >
-            Maybe later
+            Cancel
           </button>
         </div>
       </div>
