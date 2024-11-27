@@ -1,7 +1,6 @@
 import { MessageSquareQuote, ArrowRight, Bell, PenTool } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-
+import { useAuth } from '../../contexts/AuthContext';
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -26,26 +25,28 @@ export function Dashboard() {
           Hey {getFirstName()} 👋
         </h1>
         
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 max-w-5xl mx-auto">
           {/* Testimonial Generator Card */}
           <button 
             onClick={() => handleNavigate('generator')}
-            className="text-left bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2"
+            className="text-left bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2 group"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="p-2 bg-[#0F0F0F] rounded-lg">
                 <MessageSquareQuote className="w-5 h-5 text-[#CCFC7E]" />
               </div>
-              <div className="p-1.5 text-gray-500 hover:text-gray-900 rounded-full">
+              <div className="p-1.5 text-gray-500 group-hover:text-gray-900 rounded-full">
                 <ArrowRight className="w-4 h-4" />
               </div>
             </div>
 
             {/* Testimonial Thumbnail */}
-            <div className="mb-6 bg-gray-100 rounded-lg overflow-hidden">
+            <div className="mb-4 bg-gray-100 rounded-lg overflow-hidden">
               <div className="relative aspect-video">
                 <div className="absolute inset-0 p-3">
-                  <div className="h-full bg-gray-200/80 backdrop-blur rounded-lg"></div>
+                  <div className="h-full bg-gray-200/80 backdrop-blur rounded-lg flex items-center justify-center">
+                    <MessageSquareQuote className="w-8 h-8 text-gray-400" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -74,14 +75,25 @@ export function Dashboard() {
           {/* Handwritten Testimonial Card */}
           <button 
             onClick={() => handleNavigate('handwritten')}
-            className="text-left bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2"
+            className="text-left bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2 group"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="p-2 bg-[#0F0F0F] rounded-lg">
                 <PenTool className="w-5 h-5 text-[#CCFC7E]" />
               </div>
-              <div className="p-1.5 text-gray-500 hover:text-gray-900 rounded-full">
+              <div className="p-1.5 text-gray-500 group-hover:text-gray-900 rounded-full">
                 <ArrowRight className="w-4 h-4" />
+              </div>
+            </div>
+
+            {/* Handwritten Thumbnail */}
+            <div className="mb-4 bg-gray-100 rounded-lg overflow-hidden">
+              <div className="relative aspect-video">
+                <div className="absolute inset-0 p-3">
+                  <div className="h-full bg-gray-200/80 backdrop-blur rounded-lg flex items-center justify-center">
+                    <PenTool className="w-8 h-8 text-gray-400" />
+                  </div>
+                </div>
               </div>
             </div>
             
@@ -106,22 +118,24 @@ export function Dashboard() {
           {/* Payment Notification Generator Card */}
           <button 
             onClick={() => handleNavigate('payment-screenshot')}
-            className="text-left bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2"
+            className="text-left bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-2 group"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="p-2 bg-[#0F0F0F] rounded-lg w-fit">
                 <Bell className="w-5 h-5 text-[#CCFC7E]" />
               </div>
-              <div className="p-1.5 text-gray-500 hover:text-gray-900 rounded-full">
+              <div className="p-1.5 text-gray-500 group-hover:text-gray-900 rounded-full">
                 <ArrowRight className="w-4 h-4" />
               </div>
             </div>
 
             {/* Payment Notification Thumbnail */}
-            <div className="mb-6 bg-gray-100 rounded-lg overflow-hidden">
+            <div className="mb-4 bg-gray-100 rounded-lg overflow-hidden">
               <div className="relative aspect-video">
                 <div className="absolute inset-0 p-3">
-                  <div className="h-full bg-gray-200/80 backdrop-blur rounded-lg"></div>
+                  <div className="h-full bg-gray-200/80 backdrop-blur rounded-lg flex items-center justify-center">
+                    <Bell className="w-8 h-8 text-gray-400" />
+                  </div>
                 </div>
               </div>
             </div>

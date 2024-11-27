@@ -18,7 +18,7 @@ interface ProductContext {
 }
 
 export async function generateAITestimonial(
-  platform: 'facebook' | 'twitter' | 'trustpilot' | 'email',
+  platform: 'facebook' | 'twitter' | 'trustpilot' | 'email' | 'handwritten',
   productInfo: ProductContext,
   tone: string,
   senderName?: string
@@ -100,6 +100,26 @@ Review guidelines:
 Format the response as:
 [Title]
 [Review Content]`;
+  } else if (platform === 'handwritten') {
+    prompt = `Write a ${tone} handwritten testimonial about your experience with ${productInfo.companyName || 'the product/service'}. The tone should be personal and authentic.
+
+Context:
+${context}
+
+Key guidelines:
+- Write in a natural, personal voice
+- Include specific details about your experience
+- Keep the tone ${tone} but genuine
+- Focus on emotional connection and real impact
+- Use natural pauses and flow
+- Avoid business jargon
+- Include a natural conclusion
+
+Examples of natural handwritten testimonials:
+"I can't express how grateful I am for discovering this amazing service. It's transformed the way I work and brought so much joy to my daily routine."
+"From the moment I started using this product, I knew it was different. The attention to detail and quality is exactly what I've been looking for."
+"What stands out most is how much time and effort this has saved me. I honestly can't imagine going back to my old way of doing things."`;
+
   } else {
     prompt = `Generate a ${tone} email testimonial about ${productInfo.companyName || 'the company'} with a concise subject line and detailed content.
 

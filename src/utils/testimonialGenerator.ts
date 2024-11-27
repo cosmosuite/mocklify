@@ -104,6 +104,11 @@ export async function generateTestimonial(form: TestimonialForm): Promise<Genera
     const productInfo = await extractProductInfo(form.productInfo);
     const persona = PERSONAS[Math.floor(Math.random() * PERSONAS.length)];
     
+    // For handwritten testimonials, use a consistent avatar
+    const avatar = form.platform === 'handwritten' 
+      ? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'
+      : `${persona.avatar}?w=100&h=100&fit=crop&crop=faces`;
+
     // Generate content using OpenAI with enhanced context
     const generatedContent = await generateAITestimonial(
       form.platform,
@@ -137,7 +142,7 @@ export async function generateTestimonial(form: TestimonialForm): Promise<Genera
         name: form.platform === 'email' ? form.metrics.senderName || persona.name : persona.name,
         handle: ['twitter', 'facebook'].includes(form.platform) ? persona.handle : undefined,
         email: form.platform === 'email' ? form.metrics.senderEmail || persona.email : undefined,
-        avatar: `${persona.avatar}?w=100&h=100&fit=crop&crop=faces`,
+        avatar: avatar,
         isVerified: form.platform === 'twitter' ? form.metrics.isVerified : form.platform === 'trustpilot',
         location: form.platform === 'trustpilot' ? form.metrics.location || persona.location : undefined,
         reviewCount: form.platform === 'trustpilot' ? form.metrics.reviewCount : undefined

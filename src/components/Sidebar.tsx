@@ -9,7 +9,8 @@ import {
   Bell,
   ChevronDown,
   ChevronUp,
-  Loader2
+  Loader2,
+  PenTool
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '../lib/utils';
@@ -17,8 +18,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { TokenBalance } from './TokenBalance';
 
 interface Props {
-  currentView: 'dashboard' | 'generator' | 'history' | 'settings' | 'payment-screenshot';
-  onViewChange: (view: 'dashboard' | 'generator' | 'history' | 'settings' | 'payment-screenshot') => void;
+  currentView: 'dashboard' | 'generator' | 'handwritten' | 'history' | 'settings' | 'payment-screenshot';
+  onViewChange: (view: 'dashboard' | 'generator' | 'handwritten' | 'history' | 'settings' | 'payment-screenshot') => void;
   forceExpanded?: boolean;
 }
 
@@ -42,7 +43,12 @@ export function Sidebar({ currentView, onViewChange, forceExpanded = false }: Pr
     { 
       id: 'generator', 
       icon: MessageSquareQuote, 
-      label: 'Testimonials'
+      label: 'Social Testimonials'
+    },
+    {
+      id: 'handwritten',
+      icon: PenTool,
+      label: 'Handwritten Notes'
     }
   ];
 
@@ -50,7 +56,7 @@ export function Sidebar({ currentView, onViewChange, forceExpanded = false }: Pr
     {
       id: 'payment-screenshot',
       icon: Bell,
-      label: 'Notification',
+      label: 'Payment Notifications',
     }
   ];
 
@@ -106,12 +112,10 @@ export function Sidebar({ currentView, onViewChange, forceExpanded = false }: Pr
     };
   }, [isCollapsed, forceExpanded]);
 
-  // Update collapse state when forceExpanded changes
   useEffect(() => {
     setIsCollapsed(!forceExpanded);
   }, [forceExpanded]);
 
-  // Update currentView based on location
   useEffect(() => {
     const path = location.pathname.slice(1) || 'dashboard';
     if (path !== currentView) {

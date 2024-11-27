@@ -2,8 +2,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { LoginPage } from './pages/LoginPage';
 import { MainLayout } from './layouts/MainLayout';
-import { Dashboard } from './components/Dashboard';
+import { Dashboard } from './components/Dashboard/index';
 import { TestimonialGenerator } from './components/TestimonialGenerator';
+import { HandwrittenTestimonial } from './components/HandwrittenTestimonial';
 import { History } from './components/History';
 import { Settings } from './components/Settings';
 import { PaymentScreenshot } from './components/PaymentScreenshot';
@@ -38,6 +39,7 @@ export default function App() {
           >
             <Route index element={<Dashboard />} />
             <Route path="generator" element={<TestimonialGenerator />} />
+            <Route path="handwritten" element={<HandwrittenTestimonial />} />
             <Route path="history" element={<History />} />
             <Route path="payment-screenshot" element={<PaymentScreenshot />} />
             <Route path="settings" element={<Settings />} />

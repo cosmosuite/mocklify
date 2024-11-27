@@ -2,6 +2,68 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom Handwriting Fonts */
+@font-face {
+  font-family: 'Caroline Mutiboko';
+  src: url('/fonts/QECarolineMutiboko.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GeeKzoid';
+  src: url('/fonts/QEgeeKzoid.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Julian Dean';
+  src: url('/fonts/QEJulianDean.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Mamas and Papas';
+  src: url('/fonts/QEMamasAndPapas.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vicky Caulfield';
+  src: url('/fonts/QEVickyCaulfield.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Font classes */
+.font-qe-caroline {
+  font-family: 'Caroline Mutiboko', cursive;
+}
+
+.font-qe-geekzoid {
+  font-family: 'GeeKzoid', cursive;
+}
+
+.font-qe-julian {
+  font-family: 'Julian Dean', cursive;
+}
+
+.font-qe-mamas {
+  font-family: 'Mamas and Papas', cursive;
+}
+
+.font-qe-vicky {
+  font-family: 'Vicky Caulfield', cursive;
+}
+
 body {
   @apply antialiased text-gray-900;
 }
@@ -37,7 +99,7 @@ body {
   scroll-snap-align: start;
 }
 
-/* Form and Testimonial List Layout */
+/* Form and Preview Layout */
 .testimonial-layout {
   @apply grid gap-8;
   grid-template-columns: 400px minmax(0, 1fr);
@@ -48,45 +110,6 @@ body {
   height: fit-content;
 }
 
-.testimonial-list {
+.testimonial-preview {
   @apply relative z-10 min-w-0;
-}
-
-/* Platform-specific card styles */
-.testimonial-card {
-  @apply bg-white rounded-lg border border-gray-200 overflow-hidden transition-shadow hover:shadow-md;
-}
-
-.testimonial-card-header {
-  @apply px-3 py-2 border-b border-gray-100 flex items-center justify-between;
-}
-
-.testimonial-card-content {
-  @apply p-4;
-}
-
-/* Platform badges */
-.platform-badge {
-  @apply px-2.5 py-1 rounded-full text-xs font-medium capitalize text-white;
-}
-
-.platform-badge-facebook {
-  @apply bg-[#1877f2];
-}
-
-.platform-badge-twitter {
-  @apply bg-black;
-}
-
-.platform-badge-trustpilot {
-  @apply bg-[#00b67a];
-}
-
-.platform-badge-email {
-  @apply bg-[#EA4335];
-}
-
-/* Action buttons */
-.action-button {
-  @apply p-1.5 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-50 transition-colors;
 }
