@@ -54,7 +54,7 @@ export function HandwrittenPreview({ testimonial, isLoading }: Props) {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
       {/* Header with Actions */}
-      <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+      <div className="sticky top-0 z-20 px-4 py-3 border-b border-gray-200 flex items-center justify-between bg-white">
         <span className="text-sm text-gray-500">
           {new Date(testimonial.timestamp).toLocaleDateString()}
         </span>
@@ -79,49 +79,47 @@ export function HandwrittenPreview({ testimonial, isLoading }: Props) {
       {/* Content */}
       <div 
         id={`handwritten-${testimonial.id}`}
-        className="relative bg-white overflow-hidden"
+        className="relative bg-white overflow-hidden p-8"
         style={{ 
           backgroundImage: `url(${style.background.color})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}
       >
-        <div className="p-8">
-          {/* Content */}
-          <div 
-            id={`handwritten-content-${testimonial.id}`}
-            className={cn(
-              "mb-8 whitespace-pre-wrap break-words",
-              `font-${style.font}`,
-              "relative z-10"
-            )}
-            style={{
-              color: style.text.color,
-              fontSize: `${style.text.size}px`,
-              lineHeight: style.text.lineHeight,
-              padding: '1rem'
-            }}
-          >
-            {content}
-          </div>
+        {/* Content */}
+        <div 
+          id={`handwritten-content-${testimonial.id}`}
+          className={cn(
+            "mb-8 whitespace-pre-wrap break-words",
+            `font-${style.font}`,
+            "relative z-10"
+          )}
+          style={{
+            color: style.text.color,
+            fontSize: `${style.text.size}px`,
+            lineHeight: style.text.lineHeight,
+            padding: '1rem'
+          }}
+        >
+          {content}
+        </div>
 
-          {/* Signature */}
-          <div 
-            id={`handwritten-signature-${testimonial.id}`}
-            className={cn(
-              "text-right",
-              `font-${style.font}`,
-              "relative z-10"
-            )}
+        {/* Signature */}
+        <div 
+          id={`handwritten-signature-${testimonial.id}`}
+          className={cn(
+            "text-right",
+            `font-${style.font}`,
+            "relative z-10"
+          )}
           style={{
             color: style.text.color,
             fontSize: `${style.text.size}px`,
             marginTop: '2rem',
             paddingRight: '2rem'
           }}
-          >
-            {author.name}
-          </div>
+        >
+          {author.name}
         </div>
       </div>
     </div>

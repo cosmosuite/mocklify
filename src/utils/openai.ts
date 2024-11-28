@@ -41,7 +41,7 @@ export async function generateAITestimonial(
     const lengthMatch = context.match(/\[LENGTH:(\w+)\]/);
     const length = lengthMatch ? lengthMatch[1] : 'medium';
     const cleanContext = context.replace(/\[LENGTH:\w+\]/, '').trim();
-    const wordLimit = length === 'short' ? 30 : length === 'medium' ? 60 : 100;
+    const wordLimit = length === 'short' ? 30 : length === 'medium' ? 50 : 80;
     const authorName = productInfo.authorName || DEFAULT_AUTHOR_NAME;
     
     prompt = `Write a ${tone} handwritten testimonial about: ${cleanContext}\n\n` +

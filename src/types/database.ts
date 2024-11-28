@@ -7,7 +7,7 @@ export interface Database {
           created_at: string;
           updated_at: string | null;
           user_id: string | null;
-          platform: 'facebook' | 'twitter' | 'trustpilot' | 'email';
+          platform: 'facebook' | 'twitter' | 'trustpilot' | 'email' | 'handwritten';
           content: string;
           title: string | null;
           author_name: string;
@@ -17,7 +17,7 @@ export interface Database {
           author_verified: boolean;
           author_review_count: number | null;
           metrics: Record<string, any>;
-          tone: 'positive' | 'neutral' | 'negative';
+          tone: string;
           product_info: string;
         };
         Insert: {
