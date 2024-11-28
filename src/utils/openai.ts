@@ -15,6 +15,7 @@ interface ProductContext {
   description: string;
   companyName?: string;
   productName?: string;
+  authorName?: string;
 }
 
 export async function generateAITestimonial(
@@ -37,8 +38,20 @@ export async function generateAITestimonial(
   } else if (platform === 'trustpilot') {
     prompt = `Write a ${tone} Trustpilot review about: ${context}\n\nFormat as:\n[Short Title]\n[Review Content]\n\nBe specific and authentic. Focus on 2-3 key points.`;
   } else if (platform === 'handwritten') {
-    prompt = `Write a ${tone} handwritten testimonial about: ${context}\n\nMake it personal and authentic. Focus on emotional impact and real experience.`;
-
+    const lengthMatch = context.match(/\[LENGTH:(\w+)\]/);
+    const length = lengthMatch ? lengthMatch[1] : 'medium';
+    const cleanContext = context.replace(/\[LENGTH:\w+\]/, '').trim();
+    const wordLimit = length === 'short' ? 30 : length === 'medium' ? 60 : 100;
+    const authorName = productInfo.authorName || DEFAULT_AUTHOR_NAME;
+    
+    prompt = `Write a ${tone} handwritten testimonial about: ${cleanContext}\n\n` +
+      `Make it personal and authentic. Focus on emotional impact and real experience.\n\n` +
+      `IMPORTANT:\n` +
+      `1. Keep the response STRICTLY under ${wordLimit} words\n` +
+      `2. Write in first person perspective\n` +
+      `3. Write as if you are ${authorName}\n` +
+      `4. DO NOT add any signature or name at the end\n` +
+      `5. DO NOT mention your name in the content`;
   } else {
     prompt = `Write a ${tone} email testimonial about: ${context}\n\nFormat as:\n[Subject]\n[Content]\n\nBest regards,\n${senderName}`;
   }

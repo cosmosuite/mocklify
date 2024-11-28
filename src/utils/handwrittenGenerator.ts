@@ -1,21 +1,27 @@
 import { generateAITestimonial } from './openai';
 import type { HandwrittenFormData, HandwrittenTestimonial } from '../types';
 
-const DEFAULT_AUTHOR = {
-  name: 'Sarah Johnson',
-  avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'
-};
+export const WORD_LIMITS = {
+  short: 30,
+  medium: 60,
+  long: 100
+} as const;
+
+const DEFAULT_AUTHOR_NAME = 'Anonymous';
 
 export async function generateHandwrittenTestimonial(form: HandwrittenFormData): Promise<HandwrittenTestimonial> {
   try {
+    const authorName = form.authorName?.trim() || DEFAULT_AUTHOR_NAME;
+    
     // Generate content using OpenAI
     const content = await generateAITestimonial(
       'handwritten',
       { 
-        description: form.productInfo,
-        companyName: form.productInfo.startsWith('http') ? new URL(form.productInfo).hostname : undefined
+        description: `${form.productInfo} [LENGTH:${form.length}]`,
+        companyName: form.productInfo.startsWith('http') ? new URL(form.productInfo).hostname : undefined,
+        authorName
       },
-      form.tone
+      form.tone || 'enthusiastic' // Ensure tone is never null
     );
 
     if (!content) {
@@ -28,10 +34,8 @@ export async function generateHandwrittenTestimonial(form: HandwrittenFormData):
       platform: 'handwritten',
       content,
       productInfo: form.productInfo,
-      tone: form.tone,
       author: {
-        name: DEFAULT_AUTHOR.name,
-        avatar: DEFAULT_AUTHOR.avatar
+        name: authorName
       },
       timestamp: new Date(),
       style: {

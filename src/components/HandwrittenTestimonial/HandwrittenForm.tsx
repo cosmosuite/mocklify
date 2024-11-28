@@ -6,41 +6,19 @@ import { StepTwo } from './StepTwo';
 import type { HandwrittenFormData } from '../../types';
 
 interface Props {
+  formData: HandwrittenFormData;
+  onChange: (field: keyof HandwrittenFormData, value: any) => void;
   onSubmit: (form: HandwrittenFormData) => void;
   isLoading?: boolean;
 }
 
-export function HandwrittenForm({ onSubmit, isLoading }: Props) {
+export function HandwrittenForm({ formData, onChange, onSubmit, isLoading }: Props) {
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState<HandwrittenFormData>({
-    productInfo: '',
-    tone: 'enthusiastic',
-    length: 'medium',
-    aspects: ['quality'],
-    font: 'homemade-apple',
-    background: {
-      style: 'classic',
-      color: '#ffffff'
-    },
-    text: {
-      color: '#000000',
-      size: 18,
-      lineHeight: 1.8,
-      includeSignature: true
-    }
-  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.productInfo) return;
     await onSubmit(formData);
-  };
-
-  const handleChange = (field: keyof HandwrittenFormData, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
   };
 
   return (
@@ -67,14 +45,14 @@ export function HandwrittenForm({ onSubmit, isLoading }: Props) {
       {step === 1 ? (
         <StepOne 
           formData={formData}
-          onChange={handleChange}
+          onChange={onChange}
           onNext={() => setStep(2)}
         />
       ) : (
         <StepTwo 
           formData={formData}
           isLoading={isLoading}
-          onChange={handleChange}
+          onChange={onChange}
           onBack={() => setStep(1)}
           onSubmit={handleSubmit}
         />

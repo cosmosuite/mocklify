@@ -1,5 +1,6 @@
 export interface HandwrittenFormData {
   productInfo: string;
+  authorName?: string;
   tone: 'enthusiastic' | 'professional' | 'casual' | 'grateful';
   length: 'short' | 'medium' | 'long';
   aspects: string[];
@@ -12,7 +13,6 @@ export interface HandwrittenFormData {
     color: string;
     size: number;
     lineHeight: number;
-    includeSignature: boolean;
   };
 }
 

@@ -44,9 +44,10 @@ export function Dashboard() {
             <div className="mb-4 rounded-lg overflow-hidden">
               <div className="relative aspect-video">
                 <img 
-                  src="/dashboard/testimonial-generator.png"
+                  src="https://storage.googleapis.com/msgsndr/0iO3mS8O2ALa5vmXwP3d/media/6747e1b6ca86fa4ef6464280.png"
                   alt="Testimonial Generator Preview" 
                   className="w-full h-full object-cover rounded-lg"
+                  loading="lazy"
                 />
               </div>
             </div>
@@ -90,9 +91,10 @@ export function Dashboard() {
             <div className="mb-4 rounded-lg overflow-hidden">
               <div className="relative aspect-video">
                 <img 
-                  src="/dashboard/handwritten-notes.png"
+                  src="https://storage.googleapis.com/msgsndr/0iO3mS8O2ALa5vmXwP3d/media/6747e1b66b2c4835a66e6693.png"
                   alt="Handwritten Notes Preview" 
                   className="w-full h-full object-cover rounded-lg"
+                  loading="lazy"
                 />
               </div>
             </div>
@@ -133,9 +135,10 @@ export function Dashboard() {
             <div className="mb-4 rounded-lg overflow-hidden">
               <div className="relative aspect-video">
                 <img 
-                  src="/dashboard/payment-screenshot.png"
+                  src="https://storage.googleapis.com/msgsndr/0iO3mS8O2ALa5vmXwP3d/media/6747e1b6abf060062ad55696.png"
                   alt="Payment Screenshot Preview" 
                   className="w-full h-full object-cover rounded-lg"
+                  loading="lazy"
                 />
               </div>
             </div>

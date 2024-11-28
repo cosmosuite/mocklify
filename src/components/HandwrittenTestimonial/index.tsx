@@ -5,9 +5,28 @@ import { generateHandwrittenTestimonial } from '../../utils/handwrittenGenerator
 import { saveHandwrittenTestimonial } from '../../utils/db';
 import type { HandwrittenFormData, HandwrittenTestimonial as HandwrittenTestimonialType } from '../../types';
 
+import { paperBackgrounds } from './BackgroundSelector';
+
 export function HandwrittenTestimonial() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState<HandwrittenTestimonialType | null>(null);
+  const [formData, setFormData] = useState<HandwrittenFormData>({
+    productInfo: '',
+    authorName: '',
+    tone: 'enthusiastic',
+    length: 'medium',
+    aspects: ['quality'],
+    font: 'qe-caroline', // Set default font
+    background: {
+      style: 'classic',
+      color: 'https://storage.googleapis.com/msgsndr/0iO3mS8O2ALa5vmXwP3d/media/6746e15cb83c394c922e1bf3.png'
+    },
+    text: {
+      color: '#000000',
+      size: 18,
+      lineHeight: 1.8
+    }
+  });
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (form: HandwrittenFormData) => {
@@ -28,6 +47,13 @@ export function HandwrittenTestimonial() {
     }
   };
 
+  const handleFormChange = (field: keyof HandwrittenFormData, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
       {error && (
@@ -41,7 +67,12 @@ export function HandwrittenTestimonial() {
       <div className="testimonial-layout">
         {/* Form Section */}
         <div className="testimonial-form">
-          <HandwrittenForm onSubmit={handleSubmit} isLoading={isLoading} />
+          <HandwrittenForm 
+            formData={formData}
+            onChange={handleFormChange}
+            onSubmit={handleSubmit} 
+            isLoading={isLoading} 
+          />
         </div>
 
         {/* Preview Section */}

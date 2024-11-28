@@ -1,6 +1,7 @@
 import { AlertCircle } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs';
 import { cn } from '../../lib/utils';
+import { WORD_LIMITS } from '../../utils/handwrittenGenerator';
 import type { HandwrittenFormData } from '../../types';
 
 interface Props {
@@ -113,11 +114,35 @@ export function StepOne({ formData, onChange, onNext }: Props) {
         </div>
       </div>
 
+      {/* Author Name */}
+      <div className="space-y-4">
+        <label className="text-sm font-medium text-white">
+          Author Name
+        </label>
+        <input
+          type="text"
+          value={formData.authorName || ''}
+          onChange={(e) => onChange('authorName', e.target.value)}
+          placeholder="Enter author's name"
+          className={cn(
+            "w-full h-12 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white placeholder:text-gray-500",
+            "outline-none transition-colors",
+            "hover:border-[#3F3F3F] focus:border-[#CCFC7E] focus:ring-1 focus:ring-[#CCFC7E]",
+            "border-[#2F2F2F]"
+          )}
+        />
+      </div>
+
       {/* Length Selection */}
       <div className="space-y-4">
         <label className="text-sm font-medium text-white">
           Testimonial Length
         </label>
+        <div className="text-xs text-gray-400 mb-2">
+          {formData.length === 'short' && `Up to ${WORD_LIMITS.short} words`}
+          {formData.length === 'medium' && `${WORD_LIMITS.short + 1}-${WORD_LIMITS.medium} words`}
+          {formData.length === 'long' && `${WORD_LIMITS.medium + 1}-${WORD_LIMITS.long} words`}
+        </div>
         <div className="grid grid-cols-3 gap-4">
           {(['short', 'medium', 'long'] as const).map((l) => (
             <label

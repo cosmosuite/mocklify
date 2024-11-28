@@ -62,14 +62,13 @@ export async function saveHandwrittenTestimonial(testimonial: HandwrittenTestimo
         content: testimonial.content,
         author_name: testimonial.author.name,
         product_info: testimonial.productInfo,
-        tone: testimonial.tone,
+        tone: testimonial.tone || 'enthusiastic', // Ensure tone is never null
         font: testimonial.style.font,
         background_style: testimonial.style.background.style,
         background_color: testimonial.style.background.color,
         text_color: testimonial.style.text.color,
         text_size: testimonial.style.text.size,
         line_height: testimonial.style.text.lineHeight,
-        include_signature: true,
         created_at: new Date().toISOString()
       });
 

@@ -1,6 +1,8 @@
-import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { Loader2, Pencil, Download, Check } from 'lucide-react';
 import type { HandwrittenTestimonial } from '../../types';
 import { cn } from '../../lib/utils';
+import { downloadHandwrittenTestimonial } from '../../utils/downloadHandwritten';
 
 interface Props {
   testimonial: HandwrittenTestimonial | null;
@@ -8,6 +10,24 @@ interface Props {
 }
 
 export function HandwrittenPreview({ testimonial, isLoading }: Props) {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
+
+  const handleDownload = async () => {
+    if (!testimonial) return;
+    
+    setIsDownloading(true);
+    try {
+      await downloadHandwrittenTestimonial(testimonial);
+      setDownloadSuccess(true);
+      setTimeout(() => setDownloadSuccess(false), 2000);
+    } catch (error) {
+      console.error('Download failed:', error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
@@ -32,60 +52,77 @@ export function HandwrittenPreview({ testimonial, isLoading }: Props) {
   const { content, author, style } = testimonial;
 
   return (
-    <div 
-      id={`handwritten-${testimonial.id}`}
-      className="relative bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden group"
-      style={{ backgroundColor: style.background.color }}
-    >
-      {/* Action Buttons */}
-      <div className="absolute top-3 right-3 flex items-center space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 backdrop-blur-sm rounded-lg px-1.5 py-1 shadow-sm border border-gray-100">
-        <button
-          onClick={() => {}}
-          className="p-1.5 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100/80 transition-colors"
-          title="Edit testimonial"
-        >
-          <Pencil size={14} />
-        </button>
-        <button
-          onClick={() => {}}
-          className="p-1.5 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100/80 transition-colors"
-          title="Download as image"
-        >
-          <Download size={14} />
-        </button>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+      {/* Header with Actions */}
+      <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+        <span className="text-sm text-gray-500">
+          {new Date(testimonial.timestamp).toLocaleDateString()}
+        </span>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className="p-1.5 text-gray-500 hover:text-gray-700 bg-white rounded-full hover:bg-gray-50 transition-colors"
+            title="Download as image"
+          >
+            {isDownloading ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : downloadSuccess ? (
+              <Check size={14} className="text-green-500" />
+            ) : (
+              <Download size={14} />
+            )}
+          </button>
+        </div>
       </div>
 
-      <div className="p-8">
-        {/* Content */}
-        <div 
-          className={cn(
-            "mb-8 whitespace-pre-wrap break-words",
-            `font-${style.font}`
-          )}
-          style={{
-            color: style.text.color,
-            fontSize: `${style.text.size}px`,
-            lineHeight: style.text.lineHeight
-          }}
-        >
-          {content}
-        </div>
-
-        {/* {/* Signature */}
-        {style.text.includeSignature && (
+      {/* Content */}
+      <div 
+        id={`handwritten-${testimonial.id}`}
+        className="relative bg-white overflow-hidden"
+        style={{ 
+          backgroundImage: `url(${style.background.color})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
+        <div className="p-8">
+          {/* Content */}
           <div 
+            id={`handwritten-content-${testimonial.id}`}
             className={cn(
-              "text-right",
-              `font-${style.font}`
+              "mb-8 whitespace-pre-wrap break-words",
+              `font-${style.font}`,
+              "relative z-10"
             )}
             style={{
               color: style.text.color,
-              fontSize: `${style.text.size}px`
+              fontSize: `${style.text.size}px`,
+              lineHeight: style.text.lineHeight,
+              padding: '1rem'
             }}
+          >
+            {content}
+          </div>
+
+          {/* Signature */}
+          <div 
+            id={`handwritten-signature-${testimonial.id}`}
+            className={cn(
+              "text-right",
+              `font-${style.font}`,
+              "relative z-10"
+            )}
+          style={{
+            color: style.text.color,
+            fontSize: `${style.text.size}px`,
+            marginTop: '2rem',
+            paddingRight: '2rem'
+          }}
           >
             {author.name}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

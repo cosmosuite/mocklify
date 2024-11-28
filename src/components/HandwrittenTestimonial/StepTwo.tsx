@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { ChevronDown, Loader2 } from 'lucide-react';
+import { BackgroundSelector } from './BackgroundSelector';
 import { cn } from '../../lib/utils';
 import type { HandwrittenFormData } from '../../types';
 
@@ -35,11 +36,11 @@ const fonts = [
   }
 ];
 
-const backgrounds = [
-  { id: 'classic', name: 'Classic Paper', colors: ['#ffffff', '#f5f5dc', '#d3d3d3'] },
-  { id: 'notepad', name: 'Notepad', colors: [] },
-  { id: 'journal', name: 'Journal', colors: [] },
-  { id: 'custom', name: 'Custom Color', colors: [] }
+const commonInkColors = [
+  { name: 'Blue', value: '#0000FF' },
+  { name: 'Black', value: '#000000' },
+  { name: 'Green', value: '#008000' },
+  { name: 'Red', value: '#FF0000' }
 ];
 
 export function StepTwo({ formData, isLoading, onChange, onBack, onSubmit }: Props) {
@@ -102,72 +103,12 @@ export function StepTwo({ formData, isLoading, onChange, onBack, onSubmit }: Pro
       {/* Background Selection */}
       <div className="space-y-4">
         <label className="text-sm font-medium text-white">
-          Background Style
+          Paper Background
         </label>
-        <div className="grid grid-cols-2 gap-4">
-          {backgrounds.map((bg) => (
-            <div key={bg.id}>
-              <button
-                type="button"
-                onClick={() => handleBackgroundChange(bg.id)}
-                className={cn(
-                  "w-full flex items-center justify-between p-4 rounded-lg border-2 transition-colors",
-                  formData.background.style === bg.id
-                    ? "bg-[#1F1F1F] border-[#CCFC7E] text-[#CCFC7E]"
-                    : "border-[#2F2F2F] text-gray-400 hover:border-[#3F3F3F]"
-                )}
-              >
-                <span>{bg.name}</span>
-                {bg.colors.length > 0 && <ChevronDown size={16} />}
-              </button>
-
-              {formData.background.style === bg.id && bg.colors.length > 0 && (
-                <div className="grid grid-cols-3 gap-2 mt-2">
-                  {bg.colors.map((color) => (
-                    <button
-                      key={color}
-                      type="button"
-                      onClick={() => handleBackgroundChange(bg.id, color)}
-                      className={cn(
-                        "w-full h-8 rounded border-2 transition-colors",
-                        formData.background.color === color
-                          ? "border-[#CCFC7E]"
-                          : "border-transparent hover:border-gray-600"
-                      )}
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {formData.background.style === bg.id && bg.id === 'custom' && (
-                <div className="mt-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowBgColor(!showBgColor)}
-                    className="w-full h-10 rounded flex items-center justify-between px-3 border border-[#2F2F2F] hover:border-[#3F3F3F]"
-                  >
-                    <span className="text-sm text-gray-400">
-                      Select Color
-                    </span>
-                    <div
-                      className="w-6 h-6 rounded border border-gray-600"
-                      style={{ backgroundColor: formData.background.color }}
-                    />
-                  </button>
-                  {showBgColor && (
-                    <div className="mt-2">
-                      <HexColorPicker
-                        color={formData.background.color}
-                        onChange={(color) => handleBackgroundChange('custom', color)}
-                      />
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+        <BackgroundSelector
+          value={formData.background.color}
+          onChange={(url) => handleBackgroundChange('custom', url)}
+        />
       </div>
 
       {/* Text Properties */}
@@ -192,6 +133,23 @@ export function StepTwo({ formData, isLoading, onChange, onBack, onSubmit }: Pro
                 style={{ backgroundColor: formData.text.color }}
               />
             </button>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {commonInkColors.map(color => (
+                <button
+                  key={color.name}
+                  type="button"
+                  onClick={() => handleTextPropertyChange('color', color.value)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-sm transition-colors",
+                    formData.text.color === color.value
+                      ? "bg-[#1F1F1F] text-[#CCFC7E] border-2 border-[#CCFC7E]"
+                      : "bg-[#1F1F1F] text-white border border-[#2F2F2F] hover:border-[#3F3F3F]"
+                  )}
+                >
+                  {color.name}
+                </button>
+              ))}
+            </div>
             {showTextColor && (
               <div className="mt-2">
                 <HexColorPicker
@@ -233,19 +191,6 @@ export function StepTwo({ formData, isLoading, onChange, onBack, onSubmit }: Pro
               className="w-full"
             />
           </div>
-
-          {/* Include Signature */}
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={formData.text.includeSignature}
-              onChange={(e) => handleTextPropertyChange('includeSignature', e.target.checked)}
-              className="h-4 w-4 rounded border-[#2F2F2F] bg-[#1F1F1F] text-[#CCFC7E] focus:ring-[#CCFC7E] focus:ring-offset-[#0F0F0F]"
-            />
-            <span className="text-sm text-gray-400">
-              Include Signature
-            </span>
-          </label>
         </div>
       </div>
 
