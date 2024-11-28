@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Platform, TestimonialForm as TestimonialFormType, SocialMetrics } from '../../types';
 import { StepOne } from './StepOne';
 import { StepTwo } from './StepTwo';
+import { GeneratedTestimonial } from '../../types';
 import { cn } from '../../lib/utils';
 
 interface Props {
   onSubmit: (form: TestimonialFormType) => void;
+  selectedTestimonial: GeneratedTestimonial | null;
+  onMetricsUpdate: (id: string, metrics: SocialMetrics) => void;
   isLoading?: boolean;
 }
 
@@ -33,7 +36,7 @@ const defaultMetrics: SocialMetrics = {
   senderName: 'John Smith'
 };
 
-export function TestimonialForm({ onSubmit, isLoading }: Props) {
+export function TestimonialForm({ onSubmit, selectedTestimonial, onMetricsUpdate, isLoading }: Props) {
   const [step, setStep] = useState(1);
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(['facebook']);
   const [productInfo, setProductInfo] = useState('');
@@ -48,9 +51,25 @@ export function TestimonialForm({ onSubmit, isLoading }: Props) {
     email: 1
   });
   const [metrics, setMetrics] = useState<SocialMetrics>(defaultMetrics);
+  const [openPlatform, setOpenPlatform] = useState<Platform | null>(null);
+
+  // Update metrics when selected testimonial changes
+  useEffect(() => {
+    if (selectedTestimonial) {
+      setMetrics(selectedTestimonial.metrics);
+    }
+  }, [selectedTestimonial]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (selectedTestimonial) {
+      // Update metrics for selected testimonial
+      onMetricsUpdate(selectedTestimonial.id, metrics);
+      // Keep the form in editing state
+      return;
+    }
+
     if ((!productInfo.trim() && !websiteUrl.trim()) || selectedPlatforms.length === 0) {
       return;
     }
@@ -108,8 +127,34 @@ export function TestimonialForm({ onSubmit, isLoading }: Props) {
   };
 
   const handleMetricsChange = (field: keyof SocialMetrics, value: any) => {
-    setMetrics(prev => ({ ...prev, [field]: value }));
+    const updatedMetrics = {
+      ...metrics,
+      [field]: value
+    };
+    
+    setMetrics(updatedMetrics);
+    
+    // Always propagate changes immediately
+    if (selectedTestimonial) {
+      onMetricsUpdate(selectedTestimonial.id, updatedMetrics);
+    }
   };
+
+  useEffect(() => {
+    if (selectedTestimonial) {
+      setStep(2); // Show metrics editor
+      setSelectedPlatforms([selectedTestimonial.platform]);
+      setMetrics(selectedTestimonial.metrics);
+      // Auto-expand metrics editor for selected platform
+      setOpenPlatform(selectedTestimonial.platform);
+    } else {
+      // Reset form to initial state when deselecting
+      setStep(1);
+      setSelectedPlatforms(['facebook']);
+      setMetrics(defaultMetrics);
+      setOpenPlatform(null);
+    }
+  }, [selectedTestimonial]);
 
   return (
     <form onSubmit={handleSubmit} className="bg-[#0F0F0F] p-6 rounded-xl shadow-sm border border-[#1F1F1F]">
@@ -153,6 +198,7 @@ export function TestimonialForm({ onSubmit, isLoading }: Props) {
         <StepTwo 
           selectedPlatforms={selectedPlatforms}
           metrics={metrics}
+          selectedTestimonial={selectedTestimonial}
           isLoading={isLoading}
           onMetricsChange={handleMetricsChange}
           onBack={() => setStep(1)}

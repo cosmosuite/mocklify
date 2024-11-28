@@ -7,6 +7,23 @@ interface Props {
 }
 
 export function TwitterMetrics({ metrics, onChange }: Props) {
+  const defaultMetrics = {
+    likes: 0,
+    comments: 0,
+    retweets: 0,
+    views: 0,
+    timeAgo: '2h',
+    isVerified: false
+  };
+
+  // Merge with defaults to ensure all fields have values
+  const currentMetrics = { ...defaultMetrics, ...metrics };
+
+  const handleChange = (field: keyof SocialMetrics, value: any) => {
+    // Immediately propagate changes
+    onChange(field, value);
+  };
+
   return (
     <div className="grid grid-cols-2 gap-4">
       <div>
@@ -16,8 +33,8 @@ export function TwitterMetrics({ metrics, onChange }: Props) {
         <input
           type="number"
           min="0"
-          value={metrics.likes}
-          onChange={(e) => onChange('likes', parseInt(e.target.value) || 0)}
+          value={currentMetrics.likes}
+          onChange={(e) => handleChange('likes', parseInt(e.target.value) || 0)}
           className={cn(
             "w-full h-9 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white placeholder:text-gray-500",
             "outline-none transition-colors",
@@ -33,7 +50,7 @@ export function TwitterMetrics({ metrics, onChange }: Props) {
         <input
           type="number"
           min="0"
-          value={metrics.comments}
+          value={currentMetrics.comments}
           onChange={(e) => onChange('comments', parseInt(e.target.value) || 0)}
           className={cn(
             "w-full h-9 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white placeholder:text-gray-500",
@@ -50,7 +67,7 @@ export function TwitterMetrics({ metrics, onChange }: Props) {
         <input
           type="number"
           min="0"
-          value={metrics.retweets}
+          value={currentMetrics.retweets}
           onChange={(e) => onChange('retweets', parseInt(e.target.value) || 0)}
           className={cn(
             "w-full h-9 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white placeholder:text-gray-500",
@@ -67,7 +84,7 @@ export function TwitterMetrics({ metrics, onChange }: Props) {
         <input
           type="number"
           min="0"
-          value={metrics.views}
+          value={currentMetrics.views}
           onChange={(e) => onChange('views', parseInt(e.target.value) || 0)}
           className={cn(
             "w-full h-9 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white placeholder:text-gray-500",
@@ -83,7 +100,7 @@ export function TwitterMetrics({ metrics, onChange }: Props) {
         </label>
         <input
           type="text"
-          value={metrics.timeAgo}
+          value={currentMetrics.timeAgo}
           onChange={(e) => onChange('timeAgo', e.target.value)}
           className={cn(
             "w-full h-9 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white placeholder:text-gray-500",
@@ -97,7 +114,7 @@ export function TwitterMetrics({ metrics, onChange }: Props) {
         <input
           type="checkbox"
           id="verified"
-          checked={metrics.isVerified}
+          checked={currentMetrics.isVerified}
           onChange={(e) => onChange('isVerified', e.target.checked)}
           className="h-4 w-4 rounded border-[#2F2F2F] bg-[#1F1F1F] text-[#CCFC7E] focus:ring-[#CCFC7E] focus:ring-offset-[#0F0F0F]"
         />

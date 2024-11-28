@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import type { Platform, SocialMetrics } from '../../types';
+import type { Platform, SocialMetrics, GeneratedTestimonial } from '../../types';
 import { MetricsEditor } from './metrics-editor';
 
 interface Props {
   selectedPlatforms: Platform[];
   metrics: SocialMetrics;
+  selectedTestimonial: GeneratedTestimonial | null;
   isLoading?: boolean;
   onMetricsChange: (field: keyof SocialMetrics, value: any) => void;
   onBack: () => void;
@@ -16,17 +17,16 @@ interface Props {
 export function StepTwo({
   selectedPlatforms,
   metrics,
+  selectedTestimonial,
   isLoading,
   onMetricsChange,
   onBack,
   onSubmit
 }: Props) {
-  const [openPlatform, setOpenPlatform] = useState<Platform | null>(
-    selectedPlatforms[0] || null
-  );
+  const [localOpenPlatform, setLocalOpenPlatform] = useState<Platform | null>(selectedPlatforms[0] || null);
 
   const togglePlatform = (platform: Platform) => {
-    setOpenPlatform(current => current === platform ? null : platform);
+    setLocalOpenPlatform(current => current === platform ? null : platform);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -34,6 +34,9 @@ export function StepTwo({
     onSubmit(e);
   };
 
+  const handleMetricsChange = (field: keyof SocialMetrics, value: any) => {
+    onMetricsChange(field, value);
+  };
   return (
     <div className="space-y-8">
       {/* Individual Platform Metrics */}
@@ -45,25 +48,27 @@ export function StepTwo({
               onClick={() => togglePlatform(platform)}
               className={cn(
                 "w-full flex items-center justify-between p-3 text-sm font-medium transition-colors",
-                openPlatform === platform 
+                localOpenPlatform === platform 
                   ? "bg-[#CCFC7E] text-black"
                   : "bg-[#1F1F1F] text-white hover:bg-[#2F2F2F]"
               )}
             >
               <span className="capitalize">{platform} Metrics</span>
-              {openPlatform === platform ? (
+              {localOpenPlatform === platform ? (
                 <ChevronUp size={16} />
               ) : (
                 <ChevronDown size={16} />
               )}
             </button>
 
-            {openPlatform === platform && (
+            {localOpenPlatform === platform && (
               <div className="p-4 bg-[#1F1F1F]">
                 <MetricsEditor 
                   selectedPlatforms={[platform]}
                   metrics={metrics}
-                  onChange={onMetricsChange}
+                  onChange={(field, value) => {
+                    handleMetricsChange(field, value);
+                  }}
                 />
               </div>
             )}
@@ -74,6 +79,7 @@ export function StepTwo({
       <div className="flex space-x-3">
         <button
           type="button"
+          disabled={!!selectedTestimonial}
           onClick={onBack}
           className="flex-1 bg-[#1F1F1F] text-white h-11 px-8 rounded-lg font-medium hover:bg-[#2F2F2F] focus:outline-none focus:ring-2 focus:ring-[#CCFC7E] focus:ring-offset-2 focus:ring-offset-[#0F0F0F] transition-colors"
         >
@@ -91,7 +97,7 @@ export function StepTwo({
               Generating...
             </span>
           ) : (
-            'Generate Testimonials'
+            selectedTestimonial ? 'Update Metrics' : 'Generate Testimonial'
           )}
         </button>
       </div>

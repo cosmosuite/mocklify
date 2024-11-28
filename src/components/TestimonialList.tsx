@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, Loader2, Pencil } from 'lucide-react';
+import { Download, Loader2, Pencil, MessageSquareQuote } from 'lucide-react';
 import type { GeneratedTestimonial, Platform, SocialMetrics } from '../types';
 import { FacebookComment } from './FacebookComment';
 import { Tweet } from './Tweet';
@@ -11,12 +11,13 @@ import { MetricsEditor } from './testimonial-form/metrics-editor';
 
 interface Props {
   testimonials: GeneratedTestimonial[];
-  onEdit: (id: string) => void;
+  selectedId?: string | null;
+  onSelect: (testimonial: GeneratedTestimonial | null) => void;
   onMetricsUpdate: (id: string, metrics: SocialMetrics) => void;
   isLoading?: boolean;
 }
 
-export function TestimonialList({ testimonials, onEdit, onMetricsUpdate, isLoading }: Props) {
+export function TestimonialList({ testimonials, selectedId, onSelect, onMetricsUpdate, isLoading }: Props) {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -143,56 +144,72 @@ export function TestimonialList({ testimonials, onEdit, onMetricsUpdate, isLoadi
                   {/* Platform Testimonials */}
                   <div className="space-y-6">
                     {platformTestimonials.map((testimonial) => (
-                      <div key={testimonial.id} className="relative bg-white rounded-lg border border-gray-200 overflow-hidden group">
-                      <div className="relative">
-                        {/* Enhanced Testimonial Actions */}
-                        <div className="absolute top-3 right-3 z-20 flex items-center space-x-1.5 opacity-0 group-hover:opacity-100 transition-all transform translate-y-1 group-hover:translate-y-0 bg-white/95 backdrop-blur-sm rounded-lg px-2 py-1.5 shadow-md border border-gray-100">
-                          <button
-                            onClick={() => setEditingId(editingId === testimonial.id ? null : testimonial.id)}
-                            className="p-1.5 text-gray-500 hover:text-blue-600 rounded-lg hover:bg-blue-50/80 transition-all"
-                            title="Edit testimonial"
-                          >
-                            <Pencil size={14} />
-                          </button>
-                          <button
-                            onClick={() => handleDownload(testimonial)}
-                            disabled={!!downloadingId}
-                            className="p-1.5 text-gray-500 hover:text-green-600 rounded-lg hover:bg-green-50/80 transition-all"
-                            title="Download as image"
-                          >
-                            {downloadingId === testimonial.id ? (
-                              <Loader2 size={14} className="animate-spin" />
-                            ) : (
-                              <Download size={14} />
-                            )}
-                          </button>
+                      <div 
+                        key={testimonial.id}
+                        className={cn(
+                          "relative bg-white rounded-lg border overflow-hidden group transition-all",
+                          selectedId === testimonial.id
+                            ? "border-[#CCFC7E] shadow-lg" 
+                            : "border-gray-200 hover:border-gray-300"
+                        )}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onSelect(selectedId === testimonial.id ? null : testimonial);
+                        }}
+                      >
+                        <div className="relative">
+                          {/* Enhanced Testimonial Actions */}
+                          <div className="absolute top-3 right-3 z-20 flex items-center space-x-1.5 opacity-0 group-hover:opacity-100 transition-all transform translate-y-1 group-hover:translate-y-0 bg-white/95 backdrop-blur-sm rounded-lg px-2 py-1.5 shadow-md border border-gray-100">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSelect(selectedId === testimonial.id ? null : testimonial);
+                              }}
+                              className="p-1.5 text-gray-500 hover:text-blue-600 rounded-lg hover:bg-blue-50/80 transition-all"
+                              title="Edit testimonial"
+                            >
+                              <Pencil size={14} />
+                            </button>
+                            <button
+                              onClick={() => handleDownload(testimonial)}
+                              disabled={!!downloadingId}
+                              className="p-1.5 text-gray-500 hover:text-green-600 rounded-lg hover:bg-green-50/80 transition-all"
+                              title="Download as image"
+                            >
+                              {downloadingId === testimonial.id ? (
+                                <Loader2 size={14} className="animate-spin" />
+                              ) : (
+                                <Download size={14} />
+                              )}
+                            </button>
+                          </div>
+                          
+                          {/* Date */}
+                          <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+                            <span className="text-sm font-medium text-gray-600">
+                              {new Date(testimonial.timestamp).toLocaleDateString()}
+                            </span>
+                          </div>
                         </div>
-                        
-                        {/* Date */}
-                        <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
-                          <span className="text-sm font-medium text-gray-600">
-                            {new Date(testimonial.timestamp).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
 
-                      {/* Testimonial Content */}
-                      <div className="testimonial-card-content p-0 transition-all duration-200 group-hover:brightness-[0.99]">
-                        {renderTestimonial(testimonial)}
-                      </div>
-
-                      {/* Metrics Editor */}
-                      {editingId === testimonial.id && (
-                        <div className="mt-4 p-4 bg-gray-50/70 backdrop-blur-sm rounded-lg border border-gray-200 shadow-sm">
-                          <MetricsEditor
-                            selectedPlatforms={[testimonial.platform]}
-                            metrics={testimonial.metrics}
-                            onChange={(field, value) => handleMetricsChange(testimonial.id, field, value)}
-                          />
+                        {/* Testimonial Content */}
+                        <div className="testimonial-card-content p-0 transition-all duration-200 group-hover:brightness-[0.99]">
+                          {renderTestimonial(testimonial)}
                         </div>
-                      )}
-                    </div>
-                  ))}
+
+                        {/* Metrics Editor */}
+                        {editingId === testimonial.id && (
+                          <div className="mt-4 p-4 bg-gray-50/70 backdrop-blur-sm rounded-lg border border-gray-200 shadow-sm">
+                            <MetricsEditor
+                              selectedPlatforms={[testimonial.platform]}
+                              metrics={testimonial.metrics}
+                              onChange={(field, value) => handleMetricsChange(testimonial.id, field, value)}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
               ) : null;

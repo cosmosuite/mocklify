@@ -1,13 +1,18 @@
 import { useState } from 'react';
 import { TestimonialList } from './TestimonialList';
+import { TestimonialForm } from './testimonial-form';
 import { generateTestimonial } from '../utils/testimonialGenerator';
 import { saveTestimonial } from '../utils/db';
-import type { GeneratedTestimonial, TestimonialForm as TestimonialFormType, SocialMetrics } from '../types';
-import { TestimonialForm } from './testimonial-form';
+import type { 
+  GeneratedTestimonial, 
+  TestimonialForm as TestimonialFormType, 
+  SocialMetrics 
+} from '../types';
 
 export function TestimonialGenerator() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentTestimonials, setCurrentTestimonials] = useState<GeneratedTestimonial[]>([]);
+  const [selectedTestimonial, setSelectedTestimonial] = useState<GeneratedTestimonial | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (form: TestimonialFormType) => {
@@ -20,6 +25,7 @@ export function TestimonialGenerator() {
       const generated = await generateTestimonial(form);
       await saveTestimonial(generated, form);
       setCurrentTestimonials(prev => [generated, ...prev]);
+      setSelectedTestimonial(null);
     } catch (error) {
       console.error('Failed to generate testimonial:', error);
       setError('Failed to generate testimonial. Please try again.');
@@ -29,13 +35,25 @@ export function TestimonialGenerator() {
   };
 
   const handleMetricsUpdate = async (id: string, metrics: SocialMetrics) => {
+    const updatedMetrics = JSON.parse(JSON.stringify(metrics));
+    
+    // Immediately update UI state
     setCurrentTestimonials(prev => 
       prev.map(testimonial => 
         testimonial.id === id 
-          ? { ...testimonial, metrics }
+          ? { ...testimonial, metrics: updatedMetrics }
           : testimonial
       )
     );
+    
+    // Update selected testimonial state to keep form in sync
+    if (selectedTestimonial?.id === id) {
+      setSelectedTestimonial(prev => prev ? { ...prev, metrics: updatedMetrics } : null);
+    }
+  };
+
+  const handleTestimonialSelect = (testimonial: GeneratedTestimonial | null) => {
+    setSelectedTestimonial(testimonial);
   };
 
   return (
@@ -51,7 +69,12 @@ export function TestimonialGenerator() {
       <div className="testimonial-layout">
         {/* Form Section */}
         <div className="testimonial-form">
-          <TestimonialForm onSubmit={handleSubmit} isLoading={isLoading} />
+          <TestimonialForm 
+            onSubmit={handleSubmit} 
+            isLoading={isLoading}
+            selectedTestimonial={selectedTestimonial}
+            onMetricsUpdate={handleMetricsUpdate}
+          />
         </div>
 
         {/* Testimonials Section */}
@@ -59,7 +82,8 @@ export function TestimonialGenerator() {
           {currentTestimonials.length > 0 || isLoading ? (
             <TestimonialList
               testimonials={currentTestimonials}
-              onEdit={() => {}}
+              selectedId={selectedTestimonial?.id}
+              onSelect={handleTestimonialSelect}
               onMetricsUpdate={handleMetricsUpdate}
               isLoading={isLoading}
             />

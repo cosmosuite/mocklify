@@ -20,7 +20,7 @@ export function EmailTestimonial({ testimonial }: Props) {
   return (
     <div id={`email-${testimonial.id}`} className="bg-white rounded-xl overflow-hidden">
       {/* Gmail Mobile Header */}
-      <div className="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-200">
+      <div className="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-200 transition-colors">
         <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">
           <ArrowLeft className="w-5 h-5 text-[#5F6368]" />
         </button>
@@ -44,13 +44,13 @@ export function EmailTestimonial({ testimonial }: Props) {
       </div>
 
       {/* Email Subject */}
-      <div className="px-4 py-3 border-b border-gray-100">
+      <div className="px-4 py-3 border-b border-gray-100 transition-colors">
         <div className="flex items-start justify-between">
           <h1 className="text-[#202124] text-xl leading-6 font-normal">
             {testimonial.metrics.subject}
           </h1>
           {testimonial.metrics.starred && (
-            <button className="p-2 -mr-2">
+            <button className="p-2 -mr-2 transition-colors">
               <Star className="w-5 h-5 fill-[#F4B400] text-[#F4B400]" />
             </button>
           )}
@@ -58,7 +58,7 @@ export function EmailTestimonial({ testimonial }: Props) {
       </div>
 
       {/* Sender Info */}
-      <div className="px-4 py-2 flex items-center justify-between">
+      <div className="px-4 py-2 flex items-center justify-between transition-colors">
         <div className="flex items-center space-x-3">
           <div 
             className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium"

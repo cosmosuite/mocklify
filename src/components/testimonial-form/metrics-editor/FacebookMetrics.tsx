@@ -46,7 +46,21 @@ const FACEBOOK_REACTIONS: { value: FacebookReaction; icon: string; label: string
 ];
 
 export function FacebookMetrics({ metrics, onChange }: Props) {
-  const currentReactions = metrics.reactions || ['like'];
+  const defaultMetrics = {
+    likes: 0,
+    reactions: ['like'],
+    timeAgo: '2h'
+  };
+
+  // Merge with defaults to ensure all fields have values
+  const currentMetrics = { ...defaultMetrics, ...metrics };
+
+  const handleChange = (field: keyof SocialMetrics, value: any) => {
+    // Immediately propagate changes
+    onChange(field, value);
+  };
+
+  const currentReactions = currentMetrics.reactions;
   const hasMaxReactions = currentReactions.length >= 3;
 
   const toggleReaction = (e: React.MouseEvent, reaction: FacebookReaction) => {
@@ -63,7 +77,7 @@ export function FacebookMetrics({ metrics, onChange }: Props) {
       newReactions.push(reaction);
     }
 
-    onChange('reactions', newReactions);
+    handleChange('reactions', newReactions);
   };
 
   return (
@@ -76,7 +90,7 @@ export function FacebookMetrics({ metrics, onChange }: Props) {
           <input
             type="number"
             min="0"
-            value={metrics.likes}
+            value={currentMetrics.likes}
             onChange={(e) => onChange('likes', parseInt(e.target.value) || 0)}
             className={cn(
               "w-full h-9 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white placeholder:text-gray-500",
@@ -92,7 +106,7 @@ export function FacebookMetrics({ metrics, onChange }: Props) {
           </label>
           <input
             type="text"
-            value={metrics.timeAgo}
+            value={currentMetrics.timeAgo}
             onChange={(e) => onChange('timeAgo', e.target.value)}
             className={cn(
               "w-full h-9 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white placeholder:text-gray-500",

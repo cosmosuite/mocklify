@@ -50,7 +50,40 @@ const StarRating = ({ value, onChange }: { value: number; onChange: (rating: num
 };
 
 export function TrustpilotMetrics({ metrics, onChange }: Props) {
+  const defaultMetrics = {
+    rating: 4,
+    location: 'US',
+    usefulCount: 0,
+    reviewCount: 1,
+    dateOfExperience: new Date().toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    })
+  };
+
+  // Merge with defaults to ensure all fields have values
+  const currentMetrics = { ...defaultMetrics, ...metrics };
+
+  const handleChange = (field: keyof SocialMetrics, value: any) => {
+    // Immediately propagate changes
+    onChange(field, value);
+  };
+
   const today = new Date().toISOString().split('T')[0];
+  // Handle date string like "March 15, 2024"
+  const getFormattedDate = () => {
+    if (!metrics.dateOfExperience) return today;
+    try {
+      const date = new Date(metrics.dateOfExperience);
+      if (isNaN(date.getTime())) return today;
+      return date.toISOString().split('T')[0];
+    } catch {
+      return today;
+    }
+  };
+
+  const formattedDate = getFormattedDate();
 
   return (
     <div className="grid grid-cols-[1fr,120px] gap-4">
@@ -59,8 +92,8 @@ export function TrustpilotMetrics({ metrics, onChange }: Props) {
           Rating
         </label>
         <StarRating 
-          value={metrics.rating || 4}
-          onChange={(rating) => onChange('rating', rating)}
+          value={currentMetrics.rating}
+          onChange={(rating) => handleChange('rating', rating)}
         />
       </div>
       <div>
@@ -68,8 +101,9 @@ export function TrustpilotMetrics({ metrics, onChange }: Props) {
           Location
         </label>
         <select
-          value={metrics.location}
+          value={currentMetrics.location}
           onChange={(e) => onChange('location', e.target.value)}
+          onBlur={(e) => onChange('location', e.target.value)}
           className={cn(
             "w-full h-9 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white",
             "outline-none transition-colors appearance-none",
@@ -91,7 +125,7 @@ export function TrustpilotMetrics({ metrics, onChange }: Props) {
         <input
           type="number"
           min="0"
-          value={metrics.usefulCount}
+          value={currentMetrics.usefulCount}
           onChange={(e) => onChange('usefulCount', parseInt(e.target.value) || 0)}
           className={cn(
             "w-full h-9 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white placeholder:text-gray-500",
@@ -108,8 +142,9 @@ export function TrustpilotMetrics({ metrics, onChange }: Props) {
         <input
           type="number"
           min="1"
-          value={metrics.reviewCount}
-          onChange={(e) => onChange('reviewCount', parseInt(e.target.value) || 1)}
+          value={currentMetrics.reviewCount}
+          onChange={(e) => handleChange('reviewCount', parseInt(e.target.value) || 1)}
+          onBlur={(e) => handleChange('reviewCount', parseInt(e.target.value) || 1)}
           className={cn(
             "w-full h-9 rounded-lg border bg-[#1F1F1F] px-4 text-sm text-white placeholder:text-gray-500",
             "outline-none transition-colors",
@@ -124,7 +159,7 @@ export function TrustpilotMetrics({ metrics, onChange }: Props) {
         </label>
         <input
           type="date"
-          defaultValue={today}
+          value={formattedDate}
           max={today}
           onChange={(e) => {
             const date = new Date(e.target.value);
