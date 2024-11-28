@@ -39,7 +39,33 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "morph": "morph 8s ease-in-out infinite",
+        "morph-slow": "morph 12s ease-in-out infinite",
+        "morph-slower": "morph 16s ease-in-out infinite",
+        "float-up": "floatUp 8s ease-in-out infinite",
+        "glow": "glow 3s ease-in-out infinite",
       },
+      keyframes: {
+        morph: {
+          '0%, 100%': {
+            'border-radius': '40% 60% 70% 30% / 40% 40% 60% 50%'
+          },
+          '34%': {
+            'border-radius': '70% 30% 50% 50% / 30% 30% 70% 70%'
+          },
+          '67%': {
+            'border-radius': '30% 60% 70% 40% / 50% 60% 30% 60%'
+          }
+        },
+        floatUp: {
+          '0%, 100%': { transform: 'translateY(0)', opacity: '0' },
+          '50%': { transform: 'translateY(-100px)', opacity: '0.5' }
+        },
+        glow: {
+          '0%, 100%': { transform: 'scale(1)', opacity: '0.3' },
+          '50%': { transform: 'scale(1.5)', opacity: '0.7' }
+        }
+      }
     },
   },
   plugins: [animate],

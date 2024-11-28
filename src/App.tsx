@@ -1,6 +1,6 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
-import { LoginPage } from './pages/LoginPage';
+import { useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { AuthPage } from './pages/AuthPage';
 import { MainLayout } from './layouts/MainLayout';
 import { Dashboard } from './components/Dashboard/index';
 import { TestimonialGenerator } from './components/TestimonialGenerator';
@@ -12,40 +12,45 @@ import { AuthCallback } from './components/auth/AuthCallback';
 import { useAuth } from './contexts/AuthContext';
 
 // Protected Route Component
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
-  
-  if (!user) {
-    return <LoginPage />;
-  }
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+}
 
-  return <>{children}</>;
+function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth', { 
+        replace: true,
+        state: { from: location.pathname }
+      });
+    }
+  }, [user, navigate, location]);
+
+  return user ? <>{children}</> : null;
 }
 
 export default function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <MainLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="generator" element={<TestimonialGenerator />} />
-            <Route path="handwritten" element={<HandwrittenTestimonial />} />
-            <Route path="history" element={<History />} />
-            <Route path="payment-screenshot" element={<PaymentScreenshot />} />
-            <Route path="settings" element={<Settings />} />
-          </Route>
-        </Routes>
-      </AuthProvider>
-    </Router>
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/auth" element={<AuthPage />} />
+      <Route path="/login" element={<Navigate to="/auth" replace />} />
+      <Route path="/signup" element={<Navigate to="/auth" replace />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      
+      {/* Protected Routes */}
+      <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+        <Route index element={<Dashboard />} />
+        <Route path="generator" element={<TestimonialGenerator />} />
+        <Route path="handwritten" element={<HandwrittenTestimonial />} />
+        <Route path="history" element={<History />} />
+        <Route path="payment-screenshot" element={<PaymentScreenshot />} />
+        <Route path="settings" element={<Settings />} />
+      </Route>
+    </Routes>
   );
 }

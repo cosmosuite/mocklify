@@ -12,7 +12,7 @@ import {
   Loader2,
   PenTool
 } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import { useAuth } from '../contexts/AuthContext';
 import { TokenBalance } from './TokenBalance';
@@ -67,12 +67,23 @@ export function Sidebar({ currentView, onViewChange, forceExpanded = false }: Pr
   ];
 
   const handleLogout = async () => {
+    if (isLoggingOut) return;
+    
     try {
+      console.log('Starting logout process...');
       setIsLoggingOut(true);
-      await signOut();
-      navigate('/login');
-    } catch (error) {
-      console.error('Logout failed:', error);
+      
+      const result = await signOut();
+      console.log('Logout result:', result);
+      
+      if (result?.success) {
+        console.log('Navigating to auth page...');
+        navigate('/auth', { replace: true });
+      }
+    } catch (err) {
+      console.error('Detailed logout error:', err);
+      const error = err as Error;
+      alert(`Logout failed: ${error.message || 'Unknown error'}`);
     } finally {
       setIsLoggingOut(false);
     }
