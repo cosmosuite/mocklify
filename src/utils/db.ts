@@ -13,34 +13,6 @@ export async function saveTestimonial(
       throw new Error('User not authenticated');
     }
 
-    // Handle handwritten testimonials separately
-    if (form.platform === 'handwritten') {
-      const { error } = await supabase
-        .from('handwritten_testimonials')
-        .insert({
-          id: testimonial.id,
-          user_id: user.id,
-          content: testimonial.content,
-          author_name: testimonial.author.name,
-          product_info: form.productInfo,
-          tone: form.tone,
-          font: form.metrics.font,
-          background_style: form.metrics.background?.style,
-          background_color: form.metrics.background?.color,
-          text_color: form.metrics.text?.color,
-          text_size: form.metrics.text?.size,
-          line_height: form.metrics.text?.lineHeight,
-          include_signature: form.metrics.text?.includeSignature
-        });
-
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
-
-      return testimonial;
-    }
-
     // Save to Supabase
     const { error } = await supabase
       .from('testimonials')
@@ -56,20 +28,20 @@ export async function saveTestimonial(
         author_location: testimonial.author.location,
         author_verified: testimonial.author.isVerified,
         author_review_count: testimonial.author.reviewCount,
-        metrics: testimonial.metrics,
+        metrics: JSON.stringify(testimonial.metrics),
         tone: form.tone,
         product_info: form.productInfo
       });
 
     if (error) {
       console.error('Supabase error:', error);
-      throw error;
+      throw new Error('Failed to save testimonial');
     }
 
     return testimonial;
   } catch (error) {
     console.error('Failed to save testimonial:', error);
-    throw error;
+    throw new Error('Failed to save testimonial');
   }
 }
 
@@ -97,7 +69,8 @@ export async function saveHandwrittenTestimonial(testimonial: HandwrittenTestimo
         text_color: testimonial.style.text.color,
         text_size: testimonial.style.text.size,
         line_height: testimonial.style.text.lineHeight,
-        include_signature: true
+        include_signature: true,
+        created_at: new Date().toISOString()
       });
 
     if (error) {

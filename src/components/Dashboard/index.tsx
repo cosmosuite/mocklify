@@ -41,13 +41,13 @@ export function Dashboard() {
             </div>
 
             {/* Testimonial Thumbnail */}
-            <div className="mb-4 bg-gray-100 rounded-lg overflow-hidden">
+            <div className="mb-4 rounded-lg overflow-hidden">
               <div className="relative aspect-video">
-                <div className="absolute inset-0 p-3">
-                  <div className="h-full bg-gray-200/80 backdrop-blur rounded-lg flex items-center justify-center">
-                    <MessageSquareQuote className="w-8 h-8 text-gray-400" />
-                  </div>
-                </div>
+                <img 
+                  src="/dashboard/testimonial-generator.png"
+                  alt="Testimonial Generator Preview" 
+                  className="w-full h-full object-cover rounded-lg"
+                />
               </div>
             </div>
             
@@ -87,13 +87,13 @@ export function Dashboard() {
             </div>
 
             {/* Handwritten Thumbnail */}
-            <div className="mb-4 bg-gray-100 rounded-lg overflow-hidden">
+            <div className="mb-4 rounded-lg overflow-hidden">
               <div className="relative aspect-video">
-                <div className="absolute inset-0 p-3">
-                  <div className="h-full bg-gray-200/80 backdrop-blur rounded-lg flex items-center justify-center">
-                    <PenTool className="w-8 h-8 text-gray-400" />
-                  </div>
-                </div>
+                <img 
+                  src="/dashboard/handwritten-notes.png"
+                  alt="Handwritten Notes Preview" 
+                  className="w-full h-full object-cover rounded-lg"
+                />
               </div>
             </div>
             
@@ -130,13 +130,13 @@ export function Dashboard() {
             </div>
 
             {/* Payment Notification Thumbnail */}
-            <div className="mb-4 bg-gray-100 rounded-lg overflow-hidden">
+            <div className="mb-4 rounded-lg overflow-hidden">
               <div className="relative aspect-video">
-                <div className="absolute inset-0 p-3">
-                  <div className="h-full bg-gray-200/80 backdrop-blur rounded-lg flex items-center justify-center">
-                    <Bell className="w-8 h-8 text-gray-400" />
-                  </div>
-                </div>
+                <img 
+                  src="/dashboard/payment-screenshot.png"
+                  alt="Payment Screenshot Preview" 
+                  className="w-full h-full object-cover rounded-lg"
+                />
               </div>
             </div>
             

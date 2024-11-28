@@ -34,9 +34,27 @@ export function HandwrittenPreview({ testimonial, isLoading }: Props) {
   return (
     <div 
       id={`handwritten-${testimonial.id}`}
-      className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+      className="relative bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden group"
       style={{ backgroundColor: style.background.color }}
     >
+      {/* Action Buttons */}
+      <div className="absolute top-3 right-3 flex items-center space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 backdrop-blur-sm rounded-lg px-1.5 py-1 shadow-sm border border-gray-100">
+        <button
+          onClick={() => {}}
+          className="p-1.5 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100/80 transition-colors"
+          title="Edit testimonial"
+        >
+          <Pencil size={14} />
+        </button>
+        <button
+          onClick={() => {}}
+          className="p-1.5 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100/80 transition-colors"
+          title="Download as image"
+        >
+          <Download size={14} />
+        </button>
+      </div>
+
       <div className="p-8">
         {/* Content */}
         <div 

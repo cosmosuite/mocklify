@@ -5,12 +5,23 @@ interface Props {
   testimonial: GeneratedTestimonial;
 }
 
+const formatNumber = (num: number) => {
+  if (typeof num !== 'number') return '0';
+  if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+  return num.toString();
+};
+
+const defaultMetrics = {
+  likes: 0,
+  comments: 0,
+  retweets: 0,
+  views: 0,
+  bookmarks: 0
+};
+
 export function Tweet({ testimonial }: Props) {
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
-    return num.toString();
-  };
+  const metrics = { ...defaultMetrics, ...testimonial.metrics };
 
   const formatTimestamp = (date: Date) => {
     const hours = date.getHours();
@@ -96,7 +107,7 @@ export function Tweet({ testimonial }: Props) {
               <MessageCircle className="w-[18px] h-[18px]" />
             </div>
             <span className="text-sm ml-1 group-hover:text-[#1d9bf0]">
-              {formatNumber(testimonial.metrics.comments || 0)}
+              {formatNumber(metrics.comments)}
             </span>
           </button>
 
@@ -106,7 +117,7 @@ export function Tweet({ testimonial }: Props) {
               <Repeat2 className="w-[18px] h-[18px]" />
             </div>
             <span className="text-sm ml-1 group-hover:text-[#00ba7c]">
-              {formatNumber(testimonial.metrics.retweets || 0)}
+              {formatNumber(metrics.retweets)}
             </span>
           </button>
 
@@ -116,7 +127,7 @@ export function Tweet({ testimonial }: Props) {
               <Heart className="w-[18px] h-[18px]" />
             </div>
             <span className="text-sm ml-1 group-hover:text-[#f91880]">
-              {formatNumber(testimonial.metrics.likes)}
+              {formatNumber(metrics.likes)}
             </span>
           </button>
 
@@ -125,11 +136,9 @@ export function Tweet({ testimonial }: Props) {
             <div className="p-2 rounded-full group-hover:bg-[#1d9bf01a] group-hover:text-[#1d9bf0]">
               <Bookmark className="w-[18px] h-[18px]" />
             </div>
-            {testimonial.metrics.bookmarks && (
-              <span className="text-sm ml-1 group-hover:text-[#1d9bf0]">
-                {formatNumber(testimonial.metrics.bookmarks)}
-              </span>
-            )}
+            <span className="text-sm ml-1 group-hover:text-[#1d9bf0]">
+              {formatNumber(metrics.bookmarks)}
+            </span>
           </button>
 
           {/* Share */}

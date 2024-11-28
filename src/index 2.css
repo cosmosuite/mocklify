@@ -95,40 +95,10 @@ body {
 
 .testimonial-column {
   @apply flex-none space-y-6;
-  width: min(480px, calc(100vw - 4rem));
+  width: min(450px, calc(100vw - 4rem));
   scroll-snap-align: start;
 }
 
-/* Platform Badge Styles */
-.platform-badge {
-  @apply px-2.5 py-1 rounded-full text-xs font-medium capitalize;
-}
-
-.platform-badge-facebook {
-  @apply bg-blue-100 text-blue-700;
-}
-
-.platform-badge-twitter {
-  @apply bg-black text-white;
-}
-
-.platform-badge-trustpilot {
-  @apply bg-green-100 text-green-700;
-}
-
-.platform-badge-email {
-  @apply bg-red-100 text-red-700;
-}
-
-/* Hover Effects */
-.testimonial-card {
-  @apply transition-all duration-200;
-}
-
-.testimonial-card:hover {
-  @apply shadow-md;
-  transform: translateY(-1px);
-}
 /* Form and Preview Layout */
 .testimonial-layout {
   @apply grid gap-8;

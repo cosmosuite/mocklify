@@ -126,60 +126,64 @@ export function TestimonialList({ testimonials, onEdit, onMetricsUpdate, isLoadi
           </div>
         ) : testimonials.length > 0 ? (
           <div className="testimonial-columns">
-            {platforms.map((platform) => (
-              <div key={platform} className="testimonial-column">
-                {/* Platform Header */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className={cn('platform-badge', `platform-badge-${platform}`)}>
-                    {platform}
+            {platforms.map((platform) => {
+              const platformTestimonials = groupedTestimonials[platform] || [];
+              return platformTestimonials.length > 0 ? (
+                <div key={platform} className="testimonial-column">
+                  {/* Platform Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className={cn('platform-badge', `platform-badge-${platform}`)}>
+                      {platform}
+                    </div>
+                    <span className="text-sm text-[#0F0F0F]">
+                      {platformTestimonials.length} testimonial{platformTestimonials.length !== 1 ? 's' : ''}
+                    </span>
                   </div>
-                  <span className="text-sm text-[#0F0F0F]">
-                    {groupedTestimonials[platform].length} testimonial{groupedTestimonials[platform].length !== 1 ? 's' : ''}
-                  </span>
-                </div>
 
-                {/* Platform Testimonials */}
-                <div className="space-y-6">
-                  {groupedTestimonials[platform].map((testimonial) => (
-                    <div key={testimonial.id}>
-                      <div className="testimonial-card">
-                        {/* Actions */}
-                        <div className="testimonial-card-header">
-                          <span className="text-sm text-[#0F0F0F]">
+                  {/* Platform Testimonials */}
+                  <div className="space-y-6">
+                    {platformTestimonials.map((testimonial) => (
+                      <div key={testimonial.id} className="relative bg-white rounded-lg border border-gray-200 overflow-hidden group">
+                      <div className="relative">
+                        {/* Enhanced Testimonial Actions */}
+                        <div className="absolute top-3 right-3 z-20 flex items-center space-x-1.5 opacity-0 group-hover:opacity-100 transition-all transform translate-y-1 group-hover:translate-y-0 bg-white/95 backdrop-blur-sm rounded-lg px-2 py-1.5 shadow-md border border-gray-100">
+                          <button
+                            onClick={() => setEditingId(editingId === testimonial.id ? null : testimonial.id)}
+                            className="p-1.5 text-gray-500 hover:text-blue-600 rounded-lg hover:bg-blue-50/80 transition-all"
+                            title="Edit testimonial"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleDownload(testimonial)}
+                            disabled={!!downloadingId}
+                            className="p-1.5 text-gray-500 hover:text-green-600 rounded-lg hover:bg-green-50/80 transition-all"
+                            title="Download as image"
+                          >
+                            {downloadingId === testimonial.id ? (
+                              <Loader2 size={14} className="animate-spin" />
+                            ) : (
+                              <Download size={14} />
+                            )}
+                          </button>
+                        </div>
+                        
+                        {/* Date */}
+                        <div className="px-4 py-3 border-b border-gray-100 bg-gray-50/50">
+                          <span className="text-sm font-medium text-gray-600">
                             {new Date(testimonial.timestamp).toLocaleDateString()}
                           </span>
-                          <div className="flex items-center space-x-1">
-                            <button
-                              onClick={() => setEditingId(editingId === testimonial.id ? null : testimonial.id)}
-                              className="action-button"
-                              title="Edit metrics"
-                            >
-                              <Pencil size={14} />
-                            </button>
-                            <button
-                              onClick={() => handleDownload(testimonial)}
-                              disabled={!!downloadingId}
-                              className="action-button"
-                              title="Download as image"
-                            >
-                              {downloadingId === testimonial.id ? (
-                                <Loader2 size={14} className="animate-spin" />
-                              ) : (
-                                <Download size={14} />
-                              )}
-                            </button>
-                          </div>
                         </div>
+                      </div>
 
-                        {/* Content */}
-                        <div className="testimonial-card-content p-0">
-                          {renderTestimonial(testimonial)}
-                        </div>
+                      {/* Testimonial Content */}
+                      <div className="testimonial-card-content p-0 transition-all duration-200 group-hover:brightness-[0.99]">
+                        {renderTestimonial(testimonial)}
                       </div>
 
                       {/* Metrics Editor */}
                       {editingId === testimonial.id && (
-                        <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="mt-4 p-4 bg-gray-50/70 backdrop-blur-sm rounded-lg border border-gray-200 shadow-sm">
                           <MetricsEditor
                             selectedPlatforms={[testimonial.platform]}
                             metrics={testimonial.metrics}
@@ -189,14 +193,21 @@ export function TestimonialList({ testimonials, onEdit, onMetricsUpdate, isLoadi
                       )}
                     </div>
                   ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ) : null;
+            })}
           </div>
         ) : (
-          <div className="py-12 text-center">
-            <p className="text-[#0F0F0F]">
+          <div className="py-16 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+              <MessageSquareQuote className="w-8 h-8 text-gray-400" />
+            </div>
+            <p className="text-lg font-medium text-gray-900 mb-2">
               Generated testimonials will appear here
+            </p>
+            <p className="text-sm text-gray-500">
+              Start by filling out the form on the left
             </p>
           </div>
         )}

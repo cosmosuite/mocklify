@@ -104,10 +104,8 @@ export async function generateTestimonial(form: TestimonialForm): Promise<Genera
     const productInfo = await extractProductInfo(form.productInfo);
     const persona = PERSONAS[Math.floor(Math.random() * PERSONAS.length)];
     
-    // For handwritten testimonials, use a consistent avatar
-    const avatar = form.platform === 'handwritten' 
-      ? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'
-      : `${persona.avatar}?w=100&h=100&fit=crop&crop=faces`;
+    // Ensure avatar is always set
+    const avatar = `${persona.avatar}?w=100&h=100&fit=crop&crop=faces`;
 
     // Generate content using OpenAI with enhanced context
     const generatedContent = await generateAITestimonial(
@@ -133,6 +131,26 @@ export async function generateTestimonial(form: TestimonialForm): Promise<Genera
       content = generatedContent;
     }
 
+    // Ensure metrics are properly structured
+    const metrics = {
+      likes: form.metrics.likes || 0,
+      comments: form.platform === 'twitter' ? form.metrics.comments || 0 : undefined,
+      retweets: form.platform === 'twitter' ? form.metrics.retweets || 0 : undefined,
+      bookmarks: form.platform === 'twitter' ? form.metrics.bookmarks || 0 : undefined,
+      reactions: form.platform === 'facebook' ? form.metrics.reactions || ['like'] : undefined,
+      views: form.platform === 'twitter' ? form.metrics.views || 0 : undefined,
+      timeAgo: form.metrics.timeAgo || '2h',
+      rating: form.platform === 'trustpilot' ? form.metrics.rating || 4 : undefined,
+      usefulCount: form.platform === 'trustpilot' ? form.metrics.usefulCount || 0 : undefined,
+      dateOfExperience: form.platform === 'trustpilot' ? form.metrics.dateOfExperience : undefined,
+      subject: form.platform === 'email' ? form.metrics.subject : undefined,
+      attachments: form.platform === 'email' ? form.metrics.attachments : undefined,
+      starred: form.platform === 'email' ? form.metrics.starred : undefined,
+      important: form.platform === 'email' ? form.metrics.important : undefined,
+      senderName: form.platform === 'email' ? form.metrics.senderName : undefined,
+      senderEmail: form.platform === 'email' ? form.metrics.senderEmail : undefined
+    };
+
     return {
       id: Math.random().toString(36).substr(2, 9),
       platform: form.platform,
@@ -149,27 +167,12 @@ export async function generateTestimonial(form: TestimonialForm): Promise<Genera
       },
       timestamp: getTimestampFromAgo(form.metrics.timeAgo),
       metrics: {
-        likes: form.metrics.likes,
-        comments: form.platform === 'twitter' ? form.metrics.comments : undefined,
-        retweets: form.platform === 'twitter' ? form.metrics.retweets : undefined,
-        bookmarks: form.platform === 'twitter' ? form.metrics.bookmarks : undefined,
-        reactions: form.platform === 'facebook' ? form.metrics.reactions : undefined,
-        views: form.platform === 'twitter' ? form.metrics.views : undefined,
-        timeAgo: form.metrics.timeAgo,
-        rating: form.platform === 'trustpilot' ? form.metrics.rating : undefined,
-        usefulCount: form.platform === 'trustpilot' ? form.metrics.usefulCount : undefined,
-        dateOfExperience: form.platform === 'trustpilot' ? form.metrics.dateOfExperience : undefined,
-        subject: form.platform === 'email' ? form.metrics.subject : undefined,
-        attachments: form.platform === 'email' ? form.metrics.attachments : undefined,
-        starred: form.platform === 'email' ? form.metrics.starred : undefined,
-        important: form.platform === 'email' ? form.metrics.important : undefined,
-        senderName: form.platform === 'email' ? form.metrics.senderName : undefined,
-        senderEmail: form.platform === 'email' ? form.metrics.senderEmail : undefined
+        ...metrics
       },
       productInfo: productInfo.description
     };
   } catch (error) {
     console.error('Failed to generate testimonial:', error);
-    throw error;
+    throw new Error('Failed to generate testimonial. Please try again.');
   }
 }

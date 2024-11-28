@@ -31,7 +31,7 @@ export function MainLayout() {
         "flex-1 flex flex-col min-w-0",
         isDashboard ? "ml-64" : "ml-16"
       )}>
-        {['generator', 'payment-screenshot'].includes(currentView) && (
+        {['generator', 'handwritten', 'payment-screenshot'].includes(currentView) && (
           <Header currentView={currentView} />
         )}
         
