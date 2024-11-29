@@ -5,6 +5,8 @@ import type { User } from '@supabase/supabase-js';
 interface AuthContextType {
   user: User | null;
   signInWithMagicLink: (email: string) => Promise<{ error: string | null; }>;
+  signInWithPassword: (email: string, password: string) => Promise<{ error: string | null; }>;
+  signUpWithPassword: (email: string, password: string) => Promise<{ error: string | null; }>;
   signOut: () => Promise<{ success: boolean; }>;
   isLoading: boolean;
   error: string | null;
@@ -13,6 +15,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   signInWithMagicLink: async () => ({ error: null }),
+  signInWithPassword: async () => ({ error: null }),
+  signUpWithPassword: async () => ({ error: null }),
   signOut: async () => ({ success: true }),
   isLoading: true,
   error: null
@@ -70,6 +74,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const signInWithPassword = useCallback(async (email: string, password: string) => {
+    try {
+      setError(null);
+      
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        console.error('Password login error:', error);
+        return { error: error.message || 'Failed to sign in' };
+      }
+
+      return { error: null };
+    } catch (error) {
+      console.error('Password login error:', error);
+      const message = error instanceof Error ? error.message : 'Failed to sign in';
+      setError(message);
+      return { error: message };
+    }
+  }, []);
+
+  const signUpWithPassword = useCallback(async (email: string, password: string) => {
+    try {
+      setError(null);
+      
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+
+      if (error) {
+        console.error('Password signup error:', error);
+        return { error: error.message || 'Failed to sign up' };
+      }
+
+      return { error: null };
+    } catch (error) {
+      console.error('Password signup error:', error);
+      const message = error instanceof Error ? error.message : 'Failed to sign up';
+      setError(message);
+      return { error: message };
+    }
+  }, []);
+
   const signOut = useCallback(async () => {
     try {
       console.log('Starting signOut process...');
@@ -116,6 +169,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider value={{ 
       user, 
       signInWithMagicLink,
+      signInWithPassword,
+      signUpWithPassword,
       signOut,
       isLoading, 
       error 

@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { cn } from '../lib/utils'; 
+import { cn } from '../lib/utils';
+import { PasswordForm } from '../components/auth/PasswordForm';
+
+type AuthMode = 'magic-link' | 'password';
 
 export function AuthPage() {
   const { user, signInWithMagicLink } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [authMode, setAuthMode] = useState<AuthMode>('magic-link');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -100,6 +104,32 @@ export function AuthPage() {
           <p className="text-sm text-gray-400 mb-8">
             We'll sign you in, or create an account if you don't have one yet.
           </p>
+          
+          {/* Auth Mode Selector */}
+          <div className="flex space-x-4 mb-6">
+            <button
+              onClick={() => setAuthMode('magic-link')}
+              className={cn(
+                "flex-1 py-2 text-sm font-medium rounded-lg transition-colors",
+                authMode === 'magic-link'
+                  ? "bg-[#1F1F1F] text-[#CCFC7E]"
+                  : "text-gray-400 hover:text-gray-300"
+              )}
+            >
+              Magic Link
+            </button>
+            <button
+              onClick={() => setAuthMode('password')}
+              className={cn(
+                "flex-1 py-2 text-sm font-medium rounded-lg transition-colors",
+                authMode === 'password'
+                  ? "bg-[#1F1F1F] text-[#CCFC7E]"
+                  : "text-gray-400 hover:text-gray-300"
+              )}
+            >
+              Password
+            </button>
+          </div>
 
           {error && (
             <div className="mb-4 p-4 bg-red-50 border border-red-100 rounded-lg">
@@ -113,61 +143,68 @@ export function AuthPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-white mb-1">
-                Email address
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail size={16} className="text-gray-400" />
+          {authMode === 'magic-link' ? (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-white mb-1">
+                  Email address
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail size={16} className="text-gray-400" />
+                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className={cn(
+                      "block w-full pl-10 pr-4 py-2.5 text-sm border rounded-lg bg-[#1F1F1F] text-white",
+                      "focus:ring-2 focus:ring-[#CCFC7E] focus:border-[#CCFC7E]",
+                      "border-[#2F2F2F] hover:border-[#3F3F3F]",
+                      error ? "border-red-500" : ""
+                    )}
+                  />
                 </div>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className={cn(
-                    "block w-full pl-10 pr-4 py-2.5 text-sm border rounded-lg bg-[#1F1F1F] text-white",
-                    "focus:ring-2 focus:ring-[#CCFC7E] focus:border-[#CCFC7E]",
-                    "border-[#2F2F2F] hover:border-[#3F3F3F]",
-                    error ? "border-red-500" : ""
-                  )}
-                />
               </div>
-            </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={cn(
-                "w-full inline-flex items-center justify-center h-10 px-4",
-                "bg-[#CCFC7E] text-black text-sm font-medium rounded-lg",
-                "hover:bg-[#B8E86E] focus:outline-none focus:ring-2",
-                "focus:ring-[#CCFC7E] focus:ring-offset-2 focus:ring-offset-[#0F0F0F]",
-                "disabled:opacity-50 disabled:cursor-not-allowed",
-                successMessage ? "bg-green-500 hover:bg-green-600" : ""
-              )}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 size={16} className="animate-spin mr-2" />
-                  Sending link...
-                </>
-              ) : successMessage ? (
-                'Check your email'
-              ) : (
-                'Continue with Email'
-              )}
-            </button>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className={cn(
+                  "w-full inline-flex items-center justify-center h-10 px-4",
+                  "bg-[#CCFC7E] text-black text-sm font-medium rounded-lg",
+                  "hover:bg-[#B8E86E] focus:outline-none focus:ring-2",
+                  "focus:ring-[#CCFC7E] focus:ring-offset-2 focus:ring-offset-[#0F0F0F]",
+                  "disabled:opacity-50 disabled:cursor-not-allowed",
+                  successMessage ? "bg-green-500 hover:bg-green-600" : ""
+                )}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin mr-2" />
+                    Sending link...
+                  </>
+                ) : successMessage ? (
+                  'Check your email'
+                ) : (
+                  'Continue with Email'
+                )}
+              </button>
+            </form>
+          ) : (
+            <PasswordForm 
+              mode="login"
+              onSuccess={() => navigate('/')}
+            />
+          )}
 
-            <p className="text-xs text-center text-gray-400 mt-4 space-x-1">
-              <span>By clicking "Continue", you agree to the</span>
-              <a href="/terms" className="text-[#CCFC7E] hover:underline">Terms of Service</a>
-              <span>and</span>
-              <a href="/privacy" className="text-[#CCFC7E] hover:underline">Privacy Policy</a>
-            </p>
-          </form>
+          <p className="text-xs text-center text-gray-400 mt-4 space-x-1">
+            <span>By clicking "Continue", you agree to the</span>
+            <a href="/terms" className="text-[#CCFC7E] hover:underline">Terms of Service</a>
+            <span>and</span>
+            <a href="/privacy" className="text-[#CCFC7E] hover:underline">Privacy Policy</a>
+          </p>
         </div>
       </div>
     </div>
