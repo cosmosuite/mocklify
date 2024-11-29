@@ -3,6 +3,7 @@ import { TestimonialList } from './TestimonialList';
 import { TestimonialForm } from './testimonial-form';
 import { generateTestimonial } from '../utils/testimonialGenerator';
 import { saveTestimonial } from '../utils/db';
+import { supabase } from '../lib/supabase';
 import type { 
   GeneratedTestimonial, 
   TestimonialForm as TestimonialFormType, 
@@ -18,17 +19,25 @@ export function TestimonialGenerator() {
   const handleSubmit = async (form: TestimonialFormType) => {
     if (!form) return;
     
+    // Verify user session
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      setError('Please sign in to generate testimonials');
+      return;
+    }
+
     setError(null);
     setIsLoading(true);
 
     try {
       const generated = await generateTestimonial(form);
-      await saveTestimonial(generated, form);
+      await saveTestimonial(generated, form, session.user.id);
       setCurrentTestimonials(prev => [generated, ...prev]);
       setSelectedTestimonial(null);
     } catch (error) {
       console.error('Failed to generate testimonial:', error);
-      setError('Failed to generate testimonial. Please try again.');
+      const message = error instanceof Error ? error.message : 'Failed to generate testimonial';
+      setError(`${message}. Please try again.`);
     } finally {
       setIsLoading(false);
     }

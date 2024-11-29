@@ -3,13 +3,11 @@ import type { GeneratedTestimonial, TestimonialForm, HandwrittenTestimonial } fr
 
 export async function saveTestimonial(
   testimonial: GeneratedTestimonial,
-  form: TestimonialForm
+  form: TestimonialForm,
+  userId: string
 ): Promise<GeneratedTestimonial> {
   try {
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
+    if (!userId) {
       throw new Error('User not authenticated');
     }
 
@@ -18,7 +16,7 @@ export async function saveTestimonial(
       .from('testimonials')
       .insert({
         id: testimonial.id,
-        user_id: user.id,
+        user_id: userId,
         platform: testimonial.platform,
         content: testimonial.content,
         title: testimonial.title,

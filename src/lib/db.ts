@@ -4,7 +4,7 @@ interface UserProfile {
   id: string;
   created_at: string;
   email: string;
-  name?: string;
+  name?: string; // Display name for UI
   avatar_url?: string;
   settings?: {
     language?: string;
@@ -95,51 +95,55 @@ interface ProfileUpdates {
   };
 }
 
-export async function updateUserProfile(userId: string, updates: ProfileUpdates): Promise<UserProfile> {
+export async function updateUserProfile(userId: string, updates: {
+  name?: string;
+  avatar_url?: string;
+  settings?: {
+    language?: string;
+    timezone?: string;
+    email_notifications?: boolean;
+    product_updates?: boolean;
+  };
+}): Promise<any> {
   if (!userId) {
     throw new Error('User ID is required');
   }
 
   try {
-    const headers = await getAuthHeaders();
-    
-    // Get existing profile to merge settings
-    const { data: existingProfile, error: fetchError } = await supabase
-      .from('users')
-      .select('settings')
-      .eq('id', userId)
-      .single()
-      .headers(headers);
+    // First update auth metadata if name is being updated
+    if (updates.name) {
+      const { error: authError } = await supabase.auth.updateUser({
+        data: { 
+          name: updates.name,
+          updated_at: new Date().toISOString()
+        }
+      });
 
-    if (fetchError) {
-      console.error('Failed to fetch existing profile:', fetchError);
-      throw fetchError;
+      if (authError) {
+        console.error('Failed to update auth metadata:', authError);
+        throw authError;
+      }
     }
 
-    // Merge existing and new settings
-    const mergedSettings = {
-      ...existingProfile?.settings,
-      ...updates.settings
-    };
-
-    // Update profile with merged settings
+    // Then update profile in users table with all changes
     const { data, error } = await supabase
       .from('users')
       .update({
-        ...updates,
-        settings: mergedSettings,
+        name: updates.name?.trim(),
+        settings: updates.settings,
         updated_at: new Date().toISOString()
       })
       .eq('id', userId)
       .select()
-      .single()
-      .headers(headers);
+      .single();
 
     if (error) {
       console.error('Failed to update user profile:', error);
       throw error;
     }
 
+    // Refresh the session to ensure changes are reflected immediately
+    await supabase.auth.refreshSession();
     return data;
   } catch (error) {
     console.error('Error in updateUserProfile:', error);

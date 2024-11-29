@@ -1,6 +1,7 @@
 import type { GeneratedTestimonial, TestimonialForm } from '../types';
 import { scrapeWebsite } from './scraper';
 import { generateAITestimonial } from './openai';
+import { supabase } from '../lib/supabase';
 
 // Define complete personas with matching names, handles, and avatars
 const PERSONAS = [
@@ -101,6 +102,12 @@ async function extractProductInfo(input: string): Promise<{ description: string;
 
 export async function generateTestimonial(form: TestimonialForm): Promise<GeneratedTestimonial> {
   try {
+    // Verify user session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !session?.user) {
+      throw new Error('User not authenticated');
+    }
+
     const productInfo = await extractProductInfo(form.productInfo);
     const persona = PERSONAS[Math.floor(Math.random() * PERSONAS.length)];
     
@@ -173,6 +180,7 @@ export async function generateTestimonial(form: TestimonialForm): Promise<Genera
     };
   } catch (error) {
     console.error('Failed to generate testimonial:', error);
-    throw new Error('Failed to generate testimonial. Please try again.');
+    const message = error instanceof Error ? error.message : 'Failed to generate testimonial';
+    throw new Error(`${message}. Please try again.`);
   }
 }

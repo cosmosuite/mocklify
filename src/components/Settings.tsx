@@ -1,27 +1,80 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { User, Globe2, Bell, Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
+import { PasswordSection } from './settings/PasswordSection';
+import { AccountSection } from './settings/AccountSection';
+import { PreferencesSection } from './settings/PreferencesSection';
+import { NotificationsSection } from './settings/NotificationsSection';
+import { cn } from '../lib/utils';
+
+type SettingsTab = 'account' | 'preferences' | 'notifications' | 'security';
 
 export function Settings() {
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<SettingsTab>('account');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: user?.email || '',
+    name: user?.user_metadata?.name || '',
+    email: user?.email ?? '',
     language: 'en',
     timezone: 'UTC',
     email_notifications: true,
     product_updates: true
   });
 
+  // Load user profile data
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!user) return;
+      setIsLoading(true);
+
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (error) throw error;
+        
+        if (data) {
+          setFormData(prev => ({
+            ...prev,
+            name: data.name || user?.user_metadata?.name || '',
+            ...data.settings
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, [user]);
+
+  useEffect(() => {
+    // Get tab from URL hash if present
+    const hash = window.location.hash.slice(1);
+    if (hash && ['account', 'preferences', 'notifications', 'security'].includes(hash)) {
+      setActiveTab(hash as SettingsTab);
+    }
+  }, []);
+
+  // Handle tab changes
+  const handleTabChange = (tab: SettingsTab) => {
+    setActiveTab(tab);
+    history.pushState(null, '', `#${tab}`);
+  };
+
   const handleInputChange = (id: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       [id]: value
     }));
-  };
-
-  const handleSave = async () => {
-    // Save functionality will be implemented later
-    alert('Settings saved successfully!');
   };
 
   if (!user) {
@@ -39,69 +92,73 @@ export function Settings() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-[1200px] mx-auto px-6 py-8">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-8">Settings</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-2xl font-semibold text-gray-900">
+            Settings
+          </h1>
+        </div>
         
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-6">
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  disabled
-                  className="w-full h-10 px-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-500"
-                />
-                <p className="mt-2 text-sm text-gray-500">
-                  Email address cannot be changed
-                </p>
-              </div>
+        <div className="grid grid-cols-[240px,1fr] gap-8">
+          {/* Sidebar Navigation */}
+          <nav className="space-y-1">
+            {[
+              { id: 'account', label: 'Account', icon: User },
+              { id: 'preferences', label: 'Preferences', icon: Globe2 },
+              { id: 'notifications', label: 'Notifications', icon: Bell },
+              { id: 'security', label: 'Security', icon: Lock }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => handleTabChange(tab.id as SettingsTab)}
+                className={cn(
+                  "w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                  activeTab === tab.id
+                    ? "bg-gray-900 text-white"
+                    : "text-gray-600 hover:bg-gray-100"
+                )}
+              >
+                <tab.icon size={18} />
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </nav>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Language
-                </label>
-                <select
-                  value={formData.language}
-                  onChange={(e) => handleInputChange('language', e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg border border-gray-200"
-                >
-                  <option value="en">English</option>
-                  <option value="es">Spanish</option>
-                  <option value="fr">French</option>
-                </select>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <label className="text-sm font-medium text-gray-700">
-                    Email Notifications
-                  </label>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Receive email notifications about your account activity
-                  </p>
+          {/* Main Content */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="p-6">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 size={24} className="animate-spin text-gray-400" />
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.email_notifications}
-                    onChange={(e) => handleInputChange('email_notifications', e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-gray-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
-                </label>
-              </div>
-
-              <div className="mt-8">
-                <button
-                  onClick={handleSave}
-                  className="inline-flex items-center justify-center px-4 h-10 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
-                >
-                  Save Changes
-                </button>
-              </div>
+              ) : activeTab === 'account' && (
+                <AccountSection 
+                  formData={formData}
+                  onChange={handleInputChange}
+                  onSave={() => {}}
+                />
+              )}
+              
+              {activeTab === 'preferences' && (
+                <PreferencesSection 
+                  formData={formData}
+                  onChange={handleInputChange} 
+                />
+              )}
+              
+              {activeTab === 'notifications' && (
+                <NotificationsSection 
+                  formData={formData}
+                  onChange={handleInputChange} 
+                />
+              )}
+              
+              {activeTab === 'security' && (
+                <PasswordSection 
+                  onSuccess={() => {
+                    alert('Password updated successfully!');
+                  }} 
+                />
+              )}
             </div>
           </div>
         </div>
