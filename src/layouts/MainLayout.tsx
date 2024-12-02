@@ -23,7 +23,7 @@ export function MainLayout() {
     <div className="flex min-h-screen bg-white">
       <Sidebar 
         currentView={currentView} 
-        onViewChange={handleViewChange} 
+        onViewChange={handleViewChange as (view: "dashboard" | "generator" | "history" | "settings" | "payment-screenshot" | "handwritten") => void} 
         forceExpanded={isDashboard}
       />
       
