@@ -20,15 +20,12 @@ export async function getUserProfile(userId: string): Promise<UserProfile> {
   }
 
   try {
-    const headers = await getAuthHeaders();
-    
     // First try to get existing profile
     const { data: profile, error } = await supabase
       .from('users')
       .select('*')
       .eq('id', userId)
-      .single()
-      .headers(headers);
+      .single();
 
     if (error) {
       // If profile doesn't exist, get user data from auth and create profile
@@ -62,8 +59,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile> {
             }
           ])
           .select()
-          .single()
-          .headers(headers);
+          .single();
 
         if (createError) {
           console.error('Failed to create user profile:', createError);
@@ -110,6 +106,12 @@ export async function updateUserProfile(userId: string, updates: {
   }
 
   try {
+    // Get current session
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error('No active session');
+    }
+
     // First update auth metadata if name is being updated
     if (updates.name) {
       const { error: authError } = await supabase.auth.updateUser({

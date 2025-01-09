@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { AuthPage } from './pages/AuthPage';
+import { SignupPage } from './pages/SignupPage';
+import { AuthCallback } from './components/auth/AuthCallback';
 import { MainLayout } from './layouts/MainLayout';
 import { Dashboard } from './components/Dashboard/index';
 import { TestimonialGenerator } from './components/TestimonialGenerator';
@@ -8,7 +10,6 @@ import { HandwrittenTestimonial } from './components/HandwrittenTestimonial';
 import { History } from './components/History';
 import { Settings } from './components/Settings';
 import { PaymentScreenshot } from './components/PaymentScreenshot';
-import { AuthCallback } from './components/auth/AuthCallback';
 import { useAuth } from './contexts/AuthContext';
 
 // Protected Route Component
@@ -17,20 +18,25 @@ interface ProtectedRouteProps {
 }
 
 function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    if (!user) {
+    if (!isLoading && !user) {
       navigate('/auth', { 
         replace: true,
         state: { from: location.pathname }
       });
     }
-  }, [user, navigate, location]);
+  }, [user, isLoading, navigate, location]);
 
-  return user ? <>{children}</> : null;
+  // Show loading state while checking auth
+  if (isLoading) {
+    return null;
+  }
+
+  return user ? children : null;
 }
 
 export default function App() {
@@ -38,8 +44,8 @@ export default function App() {
     <Routes>
       {/* Public Routes */}
       <Route path="/auth" element={<AuthPage />} />
+      <Route path="/signup" element={<SignupPage />} />
       <Route path="/login" element={<Navigate to="/auth" replace />} />
-      <Route path="/signup" element={<Navigate to="/auth" replace />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       
       {/* Protected Routes */}

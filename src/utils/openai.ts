@@ -41,17 +41,21 @@ export async function generateAITestimonial(
     const lengthMatch = context.match(/\[LENGTH:(\w+)\]/);
     const length = lengthMatch ? lengthMatch[1] : 'medium';
     const cleanContext = context.replace(/\[LENGTH:\w+\]/, '').trim();
-    const wordLimit = length === 'short' ? 30 : length === 'medium' ? 50 : 80;
+    const wordLimit = length === 'short' ? 150 : length === 'medium' ? 300 : 500;
     const authorName = productInfo.authorName || DEFAULT_AUTHOR_NAME;
     
     prompt = `Write a ${tone} handwritten testimonial about: ${cleanContext}\n\n` +
       `Make it personal and authentic. Focus on emotional impact and real experience.\n\n` +
       `IMPORTANT:\n` +
-      `1. Keep the response STRICTLY under ${wordLimit} words\n` +
+      `1. Write EXACTLY ${wordLimit} words\n` +
       `2. Write in first person perspective\n` +
       `3. Write as if you are ${authorName}\n` +
       `4. DO NOT add any signature or name at the end\n` +
-      `5. DO NOT mention your name in the content`;
+      `5. DO NOT mention your name in the content\n` +
+      `6. Include specific details and personal experiences\n` +
+      `7. Use natural, conversational language\n` +
+      `8. Write in paragraphs with proper spacing\n` +
+      `9. Focus on emotional impact and personal connection`;
   } else {
     prompt = `Write a ${tone} email testimonial about: ${context}\n\nFormat as:\n[Subject]\n[Content]\n\nBest regards,\n${senderName}`;
   }
@@ -60,10 +64,10 @@ export async function generateAITestimonial(
     const completion = await openai.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
       model: "gpt-3.5-turbo",
-      temperature: 0.85,
+      temperature: 0.7,
       max_tokens: maxLength,
-      presence_penalty: 0.7,
-      frequency_penalty: 0.7
+      presence_penalty: 0.3,
+      frequency_penalty: 0.3
     });
 
     const response = completion.choices[0]?.message?.content?.trim();

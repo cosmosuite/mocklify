@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
 import { Loader2 } from 'lucide-react';
 
 export function AuthCallback() {
@@ -10,8 +9,8 @@ export function AuthCallback() {
     // Get URL params
     const params = new URLSearchParams(window.location.search);
     const email = params.get('email');
-    
-    // Check for errors
+    const token = params.get('token');
+    const type = params.get('type');
     const error = params.get('error');
     const errorDescription = params.get('error_description');
     
@@ -22,33 +21,22 @@ export function AuthCallback() {
       });
       return;
     }
+
+    // Handle email verification
+    if (type === 'signup' && token) {
+      navigate('/auth', {
+        state: { 
+          message: `Email verified successfully! You can now sign in with ${email}.`
+        }
+      });
+      return;
+    }
     
-    // Handle successful auth
-    const checkSession = async () => {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
-      if (sessionError) {
-        console.error('Session error:', sessionError);
-        navigate('/auth', { 
-          state: { error: 'Failed to authenticate. Please try again.' }
-        });
-        return;
-      }
-      
-      if (session) {
-        // Redirect to home with welcome message for new users
-        navigate('/', { 
-          replace: true,
-          state: { 
-            message: email ? `Welcome! You're now signed in as ${email}` : 'Welcome back!'
-          }
-        });
-      } else {
-        navigate('/auth');
-      }
-    };
-    
-    checkSession();
+    // Redirect to home on successful auth
+    navigate('/', { 
+      replace: true,
+      state: { message: 'Welcome back!' }
+    });
   }, [navigate]);
 
   return (
@@ -56,7 +44,7 @@ export function AuthCallback() {
       <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
         <div className="flex flex-col items-center">
           <Loader2 size={24} className="animate-spin mb-3" />
-          <p className="text-gray-500">Completing sign in...</p>
+          <p className="text-gray-500">Completing authentication...</p>
         </div>
       </div>
     </div>

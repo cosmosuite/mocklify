@@ -1,17 +1,29 @@
 import { useState } from 'react';
-import { Loader2, Pencil, Download, Check } from 'lucide-react';
+import { Loader2, Pencil, Download, Check, ChevronDown } from 'lucide-react';
 import type { HandwrittenTestimonial } from '../../types';
 import { cn } from '../../lib/utils';
+import { TextControls } from './TextControls';
 import { downloadHandwrittenTestimonial } from '../../utils/downloadHandwritten';
 
 interface Props {
   testimonial: HandwrittenTestimonial | null;
   isLoading?: boolean;
+  onStyleChange?: (updates: Partial<HandwrittenTestimonial['style']>) => void;
 }
 
-export function HandwrittenPreview({ testimonial, isLoading }: Props) {
+const DEFAULT_SETTINGS = {
+  textSize: 24,
+  lineHeight: 2.0,
+  padding: 32,
+  signaturePosition: 'bottom-right' as const
+};
+
+export function HandwrittenPreview({ testimonial, isLoading, onStyleChange }: Props) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [padding, setPadding] = useState(32);
+  const [signaturePosition, setSignaturePosition] = useState<'bottom-right' | 'bottom-center' | 'bottom-left'>('bottom-right');
+  const [showControls, setShowControls] = useState(true);
 
   const handleDownload = async () => {
     if (!testimonial) return;
@@ -79,18 +91,19 @@ export function HandwrittenPreview({ testimonial, isLoading }: Props) {
       {/* Content */}
       <div 
         id={`handwritten-${testimonial.id}`}
-        className="relative bg-white overflow-hidden p-8"
+        className="relative bg-white overflow-hidden w-full"
         style={{ 
           backgroundImage: `url(${style.background.color})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center'
+          backgroundPosition: 'center',
+          aspectRatio: '0.7'
         }}
       >
         {/* Content */}
         <div 
           id={`handwritten-content-${testimonial.id}`}
-          className={cn(
-            "mb-8 whitespace-pre-wrap break-words",
+          className={cn( 
+            "absolute inset-0 whitespace-pre-wrap break-words overflow-y-auto",
             `font-${style.font}`,
             "relative z-10"
           )}
@@ -98,28 +111,27 @@ export function HandwrittenPreview({ testimonial, isLoading }: Props) {
             color: style.text.color,
             fontSize: `${style.text.size}px`,
             lineHeight: style.text.lineHeight,
-            padding: '1rem'
+            padding: `${padding}px`
           }}
         >
           {content}
-        </div>
-
-        {/* Signature */}
-        <div 
-          id={`handwritten-signature-${testimonial.id}`}
-          className={cn(
-            "text-right",
-            `font-${style.font}`,
-            "relative z-10"
-          )}
-          style={{
-            color: style.text.color,
-            fontSize: `${style.text.size}px`,
-            marginTop: '2rem',
-            paddingRight: '2rem'
-          }}
-        >
-          {author.name}
+          
+          {/* Signature */}
+          <div 
+            id={`handwritten-signature-${testimonial.id}`}
+            className={cn(
+              "absolute bottom-8",
+              signaturePosition === 'bottom-right' && "right-8",
+              signaturePosition === 'bottom-center' && "left-1/2 -translate-x-1/2",
+              signaturePosition === 'bottom-left' && "left-8"
+            )}
+            style={{
+              color: style.text.color,
+              fontSize: `${style.text.size}px`
+            }}
+          >
+            {author.name}
+          </div>
         </div>
       </div>
     </div>

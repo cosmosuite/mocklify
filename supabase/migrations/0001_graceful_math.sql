@@ -1,9 +1,40 @@
+/*
+  # Initial Schema Setup
+
+  1. Tables
+    - users
+      - id (uuid, primary key)
+      - created_at (timestamptz)
+      - updated_at (timestamptz)
+      - email (text)
+      - name (text)
+      - avatar_url (text)
+      - settings (jsonb)
+    
+    - testimonials
+      - id (text, primary key)
+      - user_id (uuid, foreign key)
+      - platform (text)
+      - content (text)
+      - metrics (jsonb)
+      
+    - payment_notifications
+      - id (uuid, primary key)
+      - user_id (uuid, foreign key)
+      - platform (text)
+      - data (jsonb)
+
+  2. Security
+    - Enable RLS on all tables
+    - Add policies for authenticated users
+*/
+
 -- Enable required extensions
 create extension if not exists "uuid-ossp";
 create extension if not exists "pgcrypto";
 
 -- Create users table
-create table public.users (
+create table if not exists public.users (
     id uuid references auth.users on delete cascade not null primary key,
     created_at timestamp with time zone default timezone('utc'::text, now()) not null,
     updated_at timestamp with time zone default timezone('utc'::text, now()),
@@ -19,13 +50,38 @@ create table public.users (
     constraint users_email_key unique (email)
 );
 
--- Update testimonials table to include user_id
-alter table public.testimonials 
-add column user_id uuid references public.users(id) on delete cascade;
+-- Create testimonials table
+create table if not exists public.testimonials (
+    id text primary key,
+    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+    updated_at timestamp with time zone default timezone('utc'::text, now()),
+    user_id uuid references public.users(id) on delete cascade,
+    platform text not null check (platform in ('facebook', 'twitter', 'trustpilot', 'email', 'handwritten')),
+    content text not null,
+    title text,
+    author_name text not null,
+    author_handle text,
+    author_avatar text not null,
+    author_location text,
+    author_verified boolean default false,
+    author_review_count integer,
+    metrics jsonb not null default '{}'::jsonb,
+    tone text not null check (tone in ('positive', 'neutral', 'negative', 'enthusiastic', 'professional', 'casual', 'grateful')),
+    product_info text not null
+);
 
--- Update payment_notifications table to include user_id
-alter table public.payment_notifications 
-add column user_id uuid references public.users(id) on delete cascade;
+-- Create payment_notifications table
+create table if not exists public.payment_notifications (
+    id uuid default uuid_generate_v4() primary key,
+    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+    updated_at timestamp with time zone default timezone('utc'::text, now()),
+    user_id uuid references public.users(id) on delete cascade,
+    platform text not null check (platform in ('stripe', 'paypal')),
+    currency text not null,
+    recipients jsonb not null,
+    wallpaper text not null,
+    custom_background text
+);
 
 -- Create function to handle new user creation
 create or replace function public.handle_new_user()
@@ -96,27 +152,8 @@ create policy "Users can delete their own payment notifications"
 -- Create indexes for better performance
 create index users_email_idx on public.users (email);
 create index testimonials_user_id_idx on public.testimonials (user_id);
+create index testimonials_platform_idx on public.testimonials (platform);
+create index testimonials_created_at_idx on public.testimonials (created_at desc);
 create index payment_notifications_user_id_idx on public.payment_notifications (user_id);
-
--- Migrate existing data to demo user
-do $$
-declare
-    demo_user_id uuid;
-begin
-    -- Create demo user if not exists
-    insert into auth.users (email, encrypted_password, email_confirmed_at)
-    values ('demo@example.com', crypt('demo1234', gen_salt('bf')), now())
-    on conflict (email) do nothing
-    returning id into demo_user_id;
-
-    -- Update existing testimonials
-    update public.testimonials
-    set user_id = demo_user_id
-    where user_id is null;
-
-    -- Update existing payment notifications
-    update public.payment_notifications
-    set user_id = demo_user_id
-    where user_id is null;
-end;
-$$;
+create index payment_notifications_platform_idx on public.payment_notifications (platform);
+create index payment_notifications_created_at_idx on public.payment_notifications (created_at desc);

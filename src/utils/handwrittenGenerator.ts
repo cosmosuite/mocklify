@@ -2,9 +2,9 @@ import { generateAITestimonial } from './openai';
 import type { HandwrittenFormData, HandwrittenTestimonial } from '../types';
 
 export const WORD_LIMITS = {
-  short: 30,
-  medium: 60,
-  long: 100
+  short: 150,
+  medium: 300,
+  long: 500
 } as const;
 
 const DEFAULT_AUTHOR_NAME = 'Anonymous';

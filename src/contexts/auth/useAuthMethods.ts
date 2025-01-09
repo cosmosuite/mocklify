@@ -1,121 +1,20 @@
-import { createContext, useState, useEffect, useCallback, useContext } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../../lib/supabase';
 import type { User } from '@supabase/supabase-js';
 
 const TEST_USER_EMAIL = 'test@test.com';
 const isDevelopment = import.meta.env.DEV;
 
-interface AuthContextType {
-  user: User | null;
-  signInWithOtp: (email: string) => Promise<{ error: string | null; }>;
-  verifyOtp: (email: string, token: string) => Promise<{ error: string | null; }>;
-  signInWithPassword: (email: string, password: string) => Promise<{ error: string | null; }>;
-  signUpWithPassword: (email: string, password: string) => Promise<{ error: string | null; message?: string; }>;
-  signOut: () => Promise<{ success: boolean; }>;
-  isLoading: boolean;
-  error: string | null;
+interface AuthMethodsProps {
+  setUser: (user: User | null) => void;
+  setError: (error: string | null) => void;
+  setIsLoading: (loading: boolean) => void;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  signInWithOtp: async () => ({ error: null }),
-  verifyOtp: async () => ({ error: null }),
-  signInWithPassword: async () => ({ error: null }),
-  signUpWithPassword: async () => ({ error: null }),
-  signOut: async () => ({ success: true }),
-  isLoading: true,
-  error: null
-});
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Initialize auth state from stored session
-    const initializeAuth = async () => {
-      setIsLoading(true);
-      try {
-        // Get stored session
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          throw error;
-        }
-        
-        if (session?.user) {
-          setUser(session.user);
-          
-          // Refresh token if needed
-          const { data: { session: refreshedSession }, error: refreshError } = 
-            await supabase.auth.refreshSession();
-            
-          if (refreshError) {
-            throw refreshError;
-          } else if (refreshedSession) {
-            setUser(refreshedSession.user);
-          }
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        console.error('Error initializing auth:', error);
-        setUser(null);
-        // Clear any invalid session data
-        localStorage.removeItem('supabase.auth.token');
-        sessionStorage.clear();
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    initializeAuth();
-    
-    // Set up auth state change listener
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setIsLoading(true);
-
-      switch (event) {
-        case 'SIGNED_IN':
-          setUser(session?.user ?? null);
-          break;
-        case 'SIGNED_OUT':
-          setUser(null);
-          // Clear any stored session data
-          localStorage.removeItem('supabase.auth.token');
-          sessionStorage.clear();
-          break;
-        case 'TOKEN_REFRESHED':
-          setUser(session?.user ?? null);
-          break;
-        case 'USER_UPDATED':
-          setUser(session?.user ?? null);
-          break;
-        default:
-          // Handle any other events
-          if (session?.user) {
-            setUser(session.user);
-          } else {
-            setUser(null);
-          }
-      }
-      
-      setIsLoading(false);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  const signInWithPassword = useCallback(async (email: string, password: string) => {
+export function useAuthMethods({ setUser, setError, setIsLoading }: AuthMethodsProps) {
+  const signInWithPassword = async (email: string, password: string) => {
     try {
       setError(null);
       
-      // Validate inputs
       if (!email?.trim() || !password?.trim()) {
         return { error: 'Email and password are required' };
       }
@@ -156,13 +55,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(message);
       return { error: message };
     }
-  }, []);
+  };
 
-  const signUpWithPassword = useCallback(async (email: string, password: string) => {
+  const signUpWithPassword = async (email: string, password: string) => {
     try {
       setError(null);
       
-      // Create user with password
       const { error, data } = await supabase.auth.signUp({
         email,
         password,
@@ -202,9 +100,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(message);
       return { error: message };
     }
-  }, []);
+  };
 
-  const signInWithOtp = useCallback(async (email: string) => {
+  const signInWithOtp = async (email: string) => {
     try {
       setError(null);
       
@@ -231,9 +129,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(message);
       return { error: message };
     }
-  }, []);
+  };
 
-  const verifyOtp = useCallback(async (email: string, token: string) => {
+  const verifyOtp = async (email: string, token: string) => {
     try {
       setError(null);
       
@@ -266,11 +164,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  };
 
-  const signOut = useCallback(async () => {
+  const signOut = async () => {
     try {
-      console.log('Starting signOut process...');
       setError(null);
       setIsLoading(true);
 
@@ -282,27 +179,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       // Clear the session from Supabase
-      console.log('Clearing Supabase session...');
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
 
-      console.log('Clearing local storage...');
       // Clear all auth-related data from localStorage
       for (const key of Object.keys(localStorage)) {
         if (key.startsWith('sb-') || key.includes('supabase')) {
-          console.log('Removing key:', key);
           localStorage.removeItem(key);
         }
       }
 
-      console.log('Clearing session storage...');
       sessionStorage.clear();
-
-      console.log('Clearing user state...');
       setUser(null);
       setIsLoading(false);
 
-      // Return success
       return { success: true };
     } catch (err) {
       console.error('SignOut error:', err);
@@ -315,28 +205,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
       throw error;
     }
-  }, [user]);
+  };
 
-  return (
-    <AuthContext.Provider value={{ 
-      user, 
-      signInWithOtp,
-      verifyOtp,
-      signInWithPassword,
-      signUpWithPassword,
-      signOut,
-      isLoading, 
-      error 
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return {
+    signInWithPassword,
+    signUpWithPassword,
+    signInWithOtp,
+    verifyOtp,
+    signOut
+  };
 }

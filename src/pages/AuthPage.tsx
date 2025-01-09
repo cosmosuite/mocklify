@@ -1,23 +1,24 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Loader2 } from 'lucide-react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { MagicLinkForm } from '../components/auth/MagicLinkForm';
+import { LoginForm } from '../components/auth/LoginForm';
 import { useAuth } from '../contexts/AuthContext';
 import { cn } from '../lib/utils';
-import { PasswordForm } from '../components/auth/PasswordForm';
 
 type AuthMode = 'magic-link' | 'password';
 
 export function AuthPage() {
-  const { user, signInWithMagicLink } = useAuth();
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [authMode, setAuthMode] = useState<AuthMode>('magic-link');
-  const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    // Don't redirect while checking auth state
+    if (isLoading) return;
+
     // Check for messages in location state
     const message = location.state?.message;
     if (message) {
@@ -29,39 +30,8 @@ export function AuthPage() {
       const from = location.state?.from || '/';
       navigate(from, { replace: true });
     }
-  }, [user, navigate, location]);
+  }, [user, isLoading, navigate, location]);
 
-  const validateEmail = (email: string): boolean => {
-    return /\S+@\S+\.\S+/.test(email);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-    setSuccessMessage(null);
-
-    if (!email || !validateEmail(email)) {
-      setError('Please enter a valid email address');
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const { error: signInError } = await signInWithMagicLink(email);
-      if (signInError) {
-        setError(signInError);
-      } else {
-        setSuccessMessage("Check your email for a secure sign in link");
-        setEmail(''); // Clear email after successful submission
-      }
-    } catch (error) {
-      console.error('Auth error:', error); 
-      setError('An unexpected error occurred');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center p-4 relative overflow-hidden">
@@ -99,10 +69,10 @@ export function AuthPage() {
       <div className="bg-[#0F0F0F] rounded-xl border border-[#1F1F1F] shadow-2xl w-full max-w-md relative z-10">
         <div className="p-6">
           <h2 className="text-xl font-semibold text-white mb-1">
-            Welcome to Mocklify
+            Welcome back
           </h2>
           <p className="text-sm text-gray-400 mb-8">
-            We'll sign you in, or create an account if you don't have one yet.
+            Sign in to your account to continue
           </p>
           
           {/* Auth Mode Selector */}
@@ -144,60 +114,21 @@ export function AuthPage() {
           )}
 
           {authMode === 'magic-link' ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-white mb-1">
-                  Email address
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail size={16} className="text-gray-400" />
-                  </div>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className={cn(
-                      "block w-full pl-10 pr-4 py-2.5 text-sm border rounded-lg bg-[#1F1F1F] text-white",
-                      "focus:ring-2 focus:ring-[#CCFC7E] focus:border-[#CCFC7E]",
-                      "border-[#2F2F2F] hover:border-[#3F3F3F]",
-                      error ? "border-red-500" : ""
-                    )}
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={cn(
-                  "w-full inline-flex items-center justify-center h-10 px-4",
-                  "bg-[#CCFC7E] text-black text-sm font-medium rounded-lg",
-                  "hover:bg-[#B8E86E] focus:outline-none focus:ring-2",
-                  "focus:ring-[#CCFC7E] focus:ring-offset-2 focus:ring-offset-[#0F0F0F]",
-                  "disabled:opacity-50 disabled:cursor-not-allowed",
-                  successMessage ? "bg-green-500 hover:bg-green-600" : ""
-                )}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin mr-2" />
-                    Sending link...
-                  </>
-                ) : successMessage ? (
-                  'Check your email'
-                ) : (
-                  'Continue with Email'
-                )}
-              </button>
-            </form>
+            <MagicLinkForm onSuccess={() => navigate('/')} />
           ) : (
-            <PasswordForm 
-              mode="login"
+            <LoginForm
               onSuccess={() => navigate('/')}
             />
           )}
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-400">
+              Don't have an account?{' '}
+              <Link to="/signup" className="text-[#CCFC7E] hover:underline font-medium">
+                Create one
+              </Link>
+            </p>
+          </div>
 
           <p className="text-xs text-center text-gray-400 mt-4 space-x-1">
             <span>By clicking "Continue", you agree to the</span>

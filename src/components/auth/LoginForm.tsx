@@ -2,72 +2,47 @@ import { useState } from 'react';
 import { Eye, EyeOff, Loader2, Mail, Lock } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useAuth } from '../../contexts/AuthContext';
-import { OtpForm } from './OtpForm';
 
 interface Props {
-  mode: 'login' | 'signup';
   onSuccess: () => void;
 }
 
-export function PasswordForm({ mode, onSuccess }: Props) {
-  const { signInWithPassword, signUpWithPassword } = useAuth();
+export function LoginForm({ onSuccess }: Props) {
+  const { signInWithPassword } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showOtpForm, setShowOtpForm] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    
+    if (!email || !password) {
+      setError('Please enter your email and password');
+      return;
+    }
+
+    // Validate inputs before submission
+    if (!email?.trim() || !password?.trim()) {
+      setError('Please enter your email and password');
+      return;
+    }
+
     setError(null);
-    setSuccessMessage(null);
+    setIsLoading(true);
 
     try {
-      if (mode === 'login') {
-        const { error } = await signInWithPassword(email, password);
-        if (error) {
-          setError(error);
-        } else {
-          onSuccess();
-        }
+      const { error: signInError } = await signInWithPassword(email, password);
+      if (signInError) {
+        setError(signInError === 'Invalid credentials' ? 'Invalid email or password' : signInError);
       } else {
-        // For signup, show OTP verification after creating account
-        const { error, message } = await signUpWithPassword(email, password);
-        if (error) {
-          setError(error);
-        } else {
-          setShowOtpForm(true);
-          setSuccessMessage(message || 'Please check your email for the verification code.');
-        }
+        onSuccess();
       }
     } finally {
       setIsLoading(false);
     }
   };
-
-  if (showOtpForm) {
-    return (
-      <div className="space-y-4">
-        {successMessage && (
-          <div className="p-4 bg-green-50 border border-green-100 rounded-lg">
-            <p className="text-sm text-green-600">{successMessage}</p>
-          </div>
-        )}
-        <OtpForm 
-          email={email}
-          onSuccess={onSuccess}
-          onBack={() => {
-            setShowOtpForm(false);
-            setEmail('');
-            setPassword('');
-          }}
-        />
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -141,10 +116,10 @@ export function PasswordForm({ mode, onSuccess }: Props) {
         {isLoading ? (
           <>
             <Loader2 size={16} className="animate-spin mr-2" />
-            {mode === 'login' ? 'Signing in...' : 'Creating account...'}
+            Signing in...
           </>
         ) : (
-          mode === 'login' ? 'Sign in with Password' : 'Create Account'
+          'Sign in with Password'
         )}
       </button>
     </form>

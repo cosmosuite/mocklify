@@ -23,8 +23,8 @@ export function HandwrittenTestimonial() {
     },
     text: {
       color: '#000000',
-      size: 18,
-      lineHeight: 1.8
+      size: 24,
+      lineHeight: 2.0
     }
   });
   const [error, setError] = useState<string | null>(null);
@@ -80,6 +80,16 @@ export function HandwrittenTestimonial() {
           <HandwrittenPreview 
             testimonial={currentTestimonial}
             isLoading={isLoading}
+            onStyleChange={(updates) => {
+              if (!currentTestimonial) return;
+              setCurrentTestimonial({
+                ...currentTestimonial,
+                style: {
+                  ...currentTestimonial.style,
+                  ...updates
+                }
+              });
+            }}
           />
         </div>
       </div>

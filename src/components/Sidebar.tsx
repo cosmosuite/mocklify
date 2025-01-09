@@ -1,7 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   LayoutDashboard,
   MessageSquareQuote,
+  X,
+  ChevronLeft,
   History,
   Settings,
   HelpCircle,
@@ -20,20 +22,26 @@ import { TokenBalance } from './TokenBalance';
 interface Props {
   currentView: 'dashboard' | 'generator' | 'handwritten' | 'history' | 'settings' | 'payment-screenshot';
   onViewChange: (view: 'dashboard' | 'generator' | 'handwritten' | 'history' | 'settings' | 'payment-screenshot') => void;
-  forceExpanded?: boolean;
+  isOpen: boolean;
+  isMobile: boolean;
+  onClose: () => void;
 }
 
-export function Sidebar({ currentView, onViewChange, forceExpanded = false }: Props): JSX.Element {
+export function Sidebar({ currentView, onViewChange, isOpen, isMobile, onClose }: Props): JSX.Element {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isCollapsed, setIsCollapsed] = useState(!forceExpanded);
+  const [isCollapsed, setIsCollapsed] = useState(window.innerWidth >= 768);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     social: true,
     payments: true
   });
   const sidebarRef = useRef<HTMLDivElement>(null);
+
+  const toggleCollapse = useCallback(() => {
+    setIsCollapsed(prev => !prev);
+  }, []);
 
   const mainMenuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' }
@@ -96,36 +104,6 @@ export function Sidebar({ currentView, onViewChange, forceExpanded = false }: Pr
     }));
   };
 
-  useEffect(() => {
-    function handleMouseEnter() {
-      if (!forceExpanded && isCollapsed) {
-        setIsCollapsed(false);
-      }
-    }
-
-    function handleMouseLeave() {
-      if (!forceExpanded && !isCollapsed) {
-        setIsCollapsed(true);
-      }
-    }
-
-    const sidebar = sidebarRef.current;
-    if (sidebar && !forceExpanded) {
-      sidebar.addEventListener('mouseenter', handleMouseEnter);
-      sidebar.addEventListener('mouseleave', handleMouseLeave);
-    }
-
-    return () => {
-      if (sidebar && !forceExpanded) {
-        sidebar.removeEventListener('mouseenter', handleMouseEnter);
-        sidebar.removeEventListener('mouseleave', handleMouseLeave);
-      }
-    };
-  }, [isCollapsed, forceExpanded]);
-
-  useEffect(() => {
-    setIsCollapsed(!forceExpanded);
-  }, [forceExpanded]);
 
   useEffect(() => {
     const path = location.pathname.slice(1) || 'dashboard';
@@ -137,15 +115,19 @@ export function Sidebar({ currentView, onViewChange, forceExpanded = false }: Pr
   return (
     <div 
       ref={sidebarRef}
-      className={cn(
-        "fixed left-0 top-0 h-screen bg-[#0F0F0F] border-r border-[#1F1F1F] z-50 transition-all duration-300",
-        isCollapsed ? "w-16" : "w-64"
+      className={cn("fixed top-0 h-screen bg-[#0F0F0F] border-r border-[#1F1F1F] z-40 transition-all duration-300",
+        isMobile ? (
+          isOpen ? "left-0" : "-left-full"
+        ) : (
+          isCollapsed ? "w-16" : "w-64"
+        ),
+        isMobile ? "w-64" : undefined
       )}
     >
       {/* Logo Section */}
       <div className={cn(
         "h-16 px-4 flex items-center border-b border-[#1F1F1F]",
-        isCollapsed ? "justify-center" : "justify-start"
+        isCollapsed ? "justify-center" : "justify-between"
       )}>
         {isCollapsed ? (
           <img 
@@ -154,13 +136,20 @@ export function Sidebar({ currentView, onViewChange, forceExpanded = false }: Pr
             className="h-8 w-auto"
           />
         ) : (
-          <div className="flex items-center">
+          <>
             <img 
               src="https://storage.googleapis.com/msgsndr/0iO3mS8O2ALa5vmXwP3d/media/674200b17fc15f51f4219724.png"
               alt="Mocklify"
               className="h-8 w-auto"
             />
-          </div>
+            <button
+              onClick={toggleCollapse}
+              className="p-1.5 text-gray-400 hover:text-gray-300 hover:bg-[#1F1F1F] rounded-lg transition-colors"
+              title="Collapse sidebar"
+            >
+              <ChevronLeft size={18} className="transition-transform" />
+            </button>
+          </>
         )}
       </div>
 
@@ -168,7 +157,7 @@ export function Sidebar({ currentView, onViewChange, forceExpanded = false }: Pr
       <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
         <div className="flex-1 overflow-y-auto py-2 px-2">
           {/* Main Menu */}
-          <ul className="space-y-1 mb-4">
+          <ul className="space-y-1 mb-4" onClick={isMobile ? onClose : undefined}>
             {mainMenuItems.map((item) => (
               <li key={item.id}>
                 <button
@@ -315,6 +304,16 @@ export function Sidebar({ currentView, onViewChange, forceExpanded = false }: Pr
           </button>
         </div>
       </div>
+      
+      {/* Mobile Close Button */}
+      {isMobile && (
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-300"
+        >
+          <X size={20} />
+        </button>
+      )}
     </div>
   );
 }

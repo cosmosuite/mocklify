@@ -64,6 +64,29 @@
   font-family: 'Vicky Caulfield', cursive;
 }
 
+/* Handwritten testimonial scrollbar */
+#handwritten-content-[id] {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.2) transparent;
+}
+
+#handwritten-content-[id]::-webkit-scrollbar {
+  width: 6px;
+}
+
+#handwritten-content-[id]::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#handwritten-content-[id]::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+#handwritten-content-[id]::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0,0,0,0.3);
+}
+
 body {
   @apply antialiased text-gray-900;
 }
